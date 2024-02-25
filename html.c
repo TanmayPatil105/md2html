@@ -170,6 +170,25 @@ html_from_md (MD *md)
 }
 
 /*
+ * html_free
+ * @HTML
+ *
+ * frees up memory
+ */
+void
+html_free (HTML *html)
+{
+  /* free HTML units */
+  for (uint i = 0; i < html->n_lines; i++)
+    {
+      HTMLUnit *unit = html->html[i];
+
+      if (unit->content != NULL)
+        free (unit->content);
+    }
+}
+
+/*
  * flush_html
  * @html: HTML doc
  *

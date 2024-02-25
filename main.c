@@ -51,6 +51,7 @@ main (int   argc,
     }*/
 
   /* free */
+  html_free (html);
   fclose (file);
 
   return 0;
