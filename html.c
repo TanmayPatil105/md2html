@@ -13,8 +13,28 @@
 #define DEFAULT_HTML_TITLE     "Document"
 
 
+typedef struct {
+  HTMLTag key;
+  char *start_tag;
+	char *end_tag;
+} html_tags;
+
+static html_tags tags[] = {
+  {HTML_TAG_H1, "<h1>", "</h1>"},
+  {HTML_TAG_H2, "<h2>", "</h2>"},
+  {HTML_TAG_H3, "<h3>", "</h3>"},
+  {HTML_TAG_NONE, NULL, NULL},
+};
+
+/*
+ * html_init
+ * @html
+ *
+ * allocates memory to HTML object
+ */
 static void
-html_init (HTML **html)
+html_init (HTML **html,
+           uint  n_lines)
 {
   *html = malloc (sizeof (HTML));
 
@@ -27,6 +47,51 @@ html_init (HTML **html)
 
   (*html)->file_name = DEFAULT_HTML_FILE_NAME;
   (*html)->title = DEFAULT_HTML_TITLE;
+  (*html)->n_lines = n_lines;
+  (*html)->html = malloc (n_lines * sizeof (HTMLUnit));
+}
+
+static HTMLTag
+find_html_tag (UnitType type)
+{
+  switch (type)
+    {
+      case UNIT_TYPE_H1:
+        return HTML_TAG_H1;
+      case UNIT_TYPE_H2:
+       return HTML_TAG_H2;
+      case UNIT_TYPE_H3:
+       return HTML_TAG_H3;
+      default:
+       return HTML_TAG_NONE;
+    }
+
+  return HTML_TAG_NONE;
+}
+
+/*
+ * html_unit_init
+ * @html_unit
+ * @md_unit
+ *
+ * allocates memory to HTMLUnit object
+ */
+static void
+html_unit_init (HTMLUnit **unit,
+                MDUnit    *md_unit)
+{
+  *unit = malloc (sizeof (HTMLUnit));
+
+  // malloc fails
+  if (*unit == NULL)
+    {
+      // panic
+      return;
+    }
+
+  (*unit)->tag = find_html_tag (md_unit->type);
+  /* pass ownership of content */
+  (*unit)->content = md_unit->content;
 }
 
 /*
@@ -57,16 +122,40 @@ init_template (HTMLFile *file,
   fprintf (file, "%s", template);
 }
 
+/*
+ * html_from_md
+ * @md: markdown doc
+ *
+ * converts markdown doc into html
+ * also takes *ownership* of content
+ */
 HTML*
-md_to_html (MD *md)
+html_from_md (MD *md)
 {
+  MDUnit *unit = NULL;
   HTML *html = NULL;
 
-  html_init (&html);
+  html_init (&html, md->n_lines);
+
+  unit = md->elements;
+  while (unit != NULL)
+    {
+      HTMLUnit *html_unit = NULL;
+
+      html_unit_init (&html_unit, unit);
+
+      unit = unit->next;
+    }
 
   return html;
 }
 
+/*
+ * flush_html
+ * @html: HTML doc
+ *
+ * flushed HTML doc into a html file
+ */
 void
 flush_html (HTML *html)
 {

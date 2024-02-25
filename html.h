@@ -22,15 +22,16 @@ typedef enum {
 typedef struct HTMLUnit {
   HTMLTag tag;
   char *content;
-  char *uri;
 } HTMLUnit;
 
 typedef struct HTML {
   char *file_name;
   char *title;
-  HTMLUnit *html;
+
+  uint n_lines;
+  HTMLUnit **html;
 } HTML;
 
 
-HTML *md_to_html (MD   *md);
-void  flush_html (HTML *html);
+HTML *html_from_md (MD   *md);
+void  flush_html   (HTML *html);

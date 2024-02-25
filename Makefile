@@ -11,5 +11,8 @@ all: build
 build: $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $(BINARY_NAME)
 
+test:
+	./${BINARY_NAME} tests/test1.md
+
 clean:
 	rm -f *.o $(BINARY_NAME)

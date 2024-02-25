@@ -18,7 +18,7 @@ main (int   argc,
       char *argv[])
 {
   /* debug */
-  MDUnit *unit = NULL;
+  // MDUnit *unit = NULL;
   MDFile *file = NULL;
   MD *md = NULL;
   HTML *html = NULL;
@@ -38,16 +38,17 @@ main (int   argc,
     }
 
   md = parse_md (file);
-  html = md_to_html (md);
+  html = html_from_md (md);
   flush_html (html);
 
   /* debug */
-  unit = md->elements;
+  /*
+	unit = md->elements;
   while (unit != NULL)
     {
       printf ("%s", unit->content);
       unit = unit->next;
-    }
+    }*/
 
   /* free */
   fclose (file);
