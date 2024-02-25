@@ -86,6 +86,20 @@ find_md_unit_type (char *line)
   return UNIT_TYPE_TEXT;
 }
 
+
+static char*
+remove_trailing_new_line (char *line)
+{
+  size_t len;
+
+  len = strlen(line) - 1;
+
+  if (*line && line[len] == '\n')
+    line[len] = '\0';
+
+  return line;
+}
+
 static char*
 find_md_content (char    *line,
                  UnitType type)
@@ -124,7 +138,7 @@ read_md_unit (char *line,
 
   unit->type = type;
   /* make a copy */
-  unit->content = strdup (find_md_content (line, type));
+  unit->content = strdup (remove_trailing_new_line (find_md_content (line, type)));
 
   /* Append to md->elements */
   if (next == NULL)

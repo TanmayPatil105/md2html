@@ -3,6 +3,7 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
 #include "html.h"
 
 
@@ -12,6 +13,11 @@
 #define DEFAULT_HTML_FILE_NAME "index.html"
 #define DEFAULT_HTML_TITLE     "Document"
 
+/*
+ * @literals
+ */
+#define NEWLINE  "\n"
+#define TABSPACE "\t"
 
 typedef struct {
   HTMLTag key;
@@ -114,11 +120,22 @@ init_template (HTMLFile *file,
     "\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
     "\t<title>%s</title>\n"
     "</head>\n"
-    "<body>\n"
-    "</body>\n"
-    "</html>\n", html->title);
+    "<body>\n", html->title);
 
-  /* inject template HTML */
+  /* inject init template HTML */
+  fprintf (file, "%s", template);
+}
+
+static void
+final_template (HTMLFile *file)
+{
+  char template[20];
+
+  sprintf (template,
+    "</body>\n"
+    "</html>\n");
+
+  /* inject final template HTML */
   fprintf (file, "%s", template);
 }
 
@@ -132,6 +149,7 @@ init_template (HTMLFile *file,
 HTML*
 html_from_md (MD *md)
 {
+  uint i = 0;
   MDUnit *unit = NULL;
   HTML *html = NULL;
 
@@ -144,6 +162,7 @@ html_from_md (MD *md)
 
       html_unit_init (&html_unit, unit);
 
+      html->html[i++] = html_unit;
       unit = unit->next;
     }
 
@@ -164,4 +183,28 @@ flush_html (HTML *html)
   file = fopen (html->file_name, "w+");
 
   init_template (file, html);
+
+  for (uint i = 0; i < html->n_lines; i++)
+    {
+      HTMLUnit *unit = NULL;
+
+      unit = html->html[i];
+
+      fwrite (TABSPACE, sizeof (char), 1, file);
+
+      if (tags[unit->tag].start_tag)
+        fwrite (tags[unit->tag].start_tag, sizeof (char), strlen (tags[unit->tag].start_tag), file);
+
+      // FIXME: do not print newlines
+      fwrite (unit->content, sizeof (char), strlen (unit->content), file);
+
+      if (tags[unit->tag].end_tag)
+        fwrite (tags[unit->tag].end_tag, sizeof (char), strlen (tags[unit->tag].end_tag), file);
+
+      fwrite (NEWLINE, sizeof (char), 1, file);
+    }
+
+  final_template (file);
+
+  fclose (file);
 }
