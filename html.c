@@ -36,20 +36,22 @@ html_init (HTML **html)
  * inject template HTML code in a file
  */
 static void
-init_template (HTMLFile *file)
+init_template (HTMLFile *file,
+               HTML     *html)
 {
-  char *template =
+  char template[200];
+
+  sprintf (template,
     "<!DOCTYPE html>\n"
     "<html lang=\"en\">\n"
     "<head>\n"
-    "<meta charset=\"UTF-8\">\n"
-    "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
-    "<title>Document</title>\n"
+    "\t<meta charset=\"UTF-8\">\n"
+    "\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
+    "\t<title>%s</title>\n"
     "</head>\n"
     "<body>\n"
-    //"\n"
     "</body>\n"
-    "</html>\n";
+    "</html>\n", html->title);
 
   /* inject template HTML */
   fprintf (file, "%s", template);
@@ -72,5 +74,5 @@ flush_html (HTML *html)
 
   file = fopen (html->file_name, "w+");
 
-  init_template (file);
+  init_template (file, html);
 }
