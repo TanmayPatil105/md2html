@@ -3,7 +3,7 @@ BINARY_NAME = mdto
 CC = gcc
 CFLAGS = -g -Wall -Wextra --pedantic-errors
 
-SRCS = main.c md.c
+SRCS = main.c md.c html.c
 OBJS = $(SRCS:.c=.o)
 
 all: build

@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include "md.h"
+#include "html.h"
 
 
 void
@@ -20,6 +21,7 @@ main (int   argc,
   MDUnit *unit = NULL;
   MDFile *file = NULL;
   MD *md = NULL;
+  HTML *html = NULL;
 
   if (argc < 2)
     {
@@ -36,6 +38,8 @@ main (int   argc,
     }
 
   md = parse_md (file);
+  html = md_to_html (md);
+  flush_html (html);
 
   /* debug */
   unit = md->elements;
