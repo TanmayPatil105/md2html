@@ -185,7 +185,12 @@ html_free (HTML *html)
 
       if (unit->content != NULL)
         free (unit->content);
+
+      free (unit);
     }
+
+  free (html->html);
+  free (html);
 }
 
 /*

@@ -188,5 +188,23 @@ parse_md (MDFile *file)
 
   md->n_lines = n_lines;
 
+  free (line);
   return md;
+}
+
+void
+md_free (MD *md)
+{
+  MDUnit *unit = NULL;
+  MDUnit *next = NULL;
+
+  unit = md->elements;
+  while (unit != NULL)
+    {
+      next = unit->next;
+      free (unit);
+      unit = next;
+    }
+
+  free (md);
 }

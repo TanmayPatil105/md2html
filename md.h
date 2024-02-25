@@ -35,4 +35,5 @@ typedef struct {
 } MD;
 
 
-MD *parse_md (MDFile *file);
+MD  *parse_md (MDFile *file);
+void md_free (MD *md);
