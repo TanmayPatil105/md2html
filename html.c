@@ -22,7 +22,7 @@
 typedef struct {
   HTMLTag key;
   char *start_tag;
-	char *end_tag;
+  char *end_tag;
 } html_tags;
 
 static html_tags tags[] = {

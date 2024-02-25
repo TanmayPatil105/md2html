@@ -64,17 +64,17 @@ find_md_unit_type (char *line)
       if (line[1] &&
           line[1] == '#')
         {
-        if (line[2] &&
-            line[2] == '#')
-          {
-            if (line[3] == ' ')
-              return UNIT_TYPE_H3;
-          }
-        else if (line[2] &&
-               line[2] == ' ')
-          {
-            return UNIT_TYPE_H2;
-          }
+          if (line[2] &&
+              line[2] == '#')
+            {
+              if (line[3] == ' ')
+                return UNIT_TYPE_H3;
+            }
+          else if (line[2] &&
+                   line[2] == ' ')
+            {
+              return UNIT_TYPE_H2;
+            }
         }
       else if (line[1] &&
                line[1] == ' ')
@@ -108,7 +108,7 @@ find_md_content (char    *line,
     {
       line += 2;
       return line;
-		}
+    }
   else if (type == UNIT_TYPE_H2)
     {
       line += 3;
