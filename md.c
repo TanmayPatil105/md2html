@@ -83,6 +83,13 @@ find_md_unit_type (char *line)
         }
     }
 
+  if (line[0] &&
+      line[0] == '-' &&
+      line[1] && line[1] != '-')
+    {
+      return UNIT_TYPE_BULLET;
+    }
+
   return UNIT_TYPE_TEXT;
 }
 
@@ -117,6 +124,11 @@ find_md_content (char    *line,
   else if (type == UNIT_TYPE_H3)
     {
       line += 4;
+      return line;
+    }
+  else if (type == UNIT_TYPE_BULLET)
+    {
+      line += 2;
       return line;
     }
 

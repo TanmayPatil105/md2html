@@ -16,6 +16,7 @@ typedef enum {
   HTML_TAG_H1,
   HTML_TAG_H2,
   HTML_TAG_H3,
+  HTML_TAG_LI,
   HTML_TAG_NONE,
 } HTMLTag;
 

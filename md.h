@@ -17,6 +17,7 @@ typedef enum {
   UNIT_TYPE_H1,
   UNIT_TYPE_H2,
   UNIT_TYPE_H3,
+  UNIT_TYPE_BULLET,
   UNIT_TYPE_TEXT,
   UNIT_TYPE_NONE,
 } UnitType;

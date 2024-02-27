@@ -29,6 +29,7 @@ static html_tags tags[] = {
   {HTML_TAG_H1, "<h1>", "</h1>"},
   {HTML_TAG_H2, "<h2>", "</h2>"},
   {HTML_TAG_H3, "<h3>", "</h3>"},
+  {HTML_TAG_LI, "<li>", "</li>"},
   {HTML_TAG_NONE, NULL, NULL},
 };
 
@@ -68,6 +69,8 @@ find_html_tag (UnitType type)
        return HTML_TAG_H2;
       case UNIT_TYPE_H3:
        return HTML_TAG_H3;
+      case UNIT_TYPE_BULLET:
+        return HTML_TAG_LI;
       default:
        return HTML_TAG_NONE;
     }
@@ -214,7 +217,17 @@ flush_html (HTML *html)
 
       unit = html->html[i];
 
+      if (unit->tag == HTML_TAG_LI && ( i == 0 || html->html[i-1]->tag != HTML_TAG_LI))
+        {
+          fwrite (TABSPACE, sizeof (char), 1, file);
+          fwrite ("<ul>", sizeof (char), strlen ("<ul>"), file);
+          fwrite (NEWLINE, sizeof (char), 1, file);
+        }
+
       fwrite (TABSPACE, sizeof (char), 1, file);
+
+      if (unit->tag == HTML_TAG_LI)
+        fwrite (TABSPACE, sizeof (char), 1, file);
 
       if (tags[unit->tag].start_tag)
         fwrite (tags[unit->tag].start_tag, sizeof (char), strlen (tags[unit->tag].start_tag), file);
@@ -226,6 +239,13 @@ flush_html (HTML *html)
         fwrite (tags[unit->tag].end_tag, sizeof (char), strlen (tags[unit->tag].end_tag), file);
 
       fwrite (NEWLINE, sizeof (char), 1, file);
+
+      if (unit->tag == HTML_TAG_LI && ( i == html->n_lines - 1 || html->html[i+1]->tag != HTML_TAG_LI))
+        {
+          fwrite (TABSPACE, sizeof (char), 1, file);
+          fwrite ("</ul>", sizeof (char), strlen ("</ul>"), file);
+          fwrite (NEWLINE, sizeof (char), 1, file);
+        }
     }
 
   final_template (file);
