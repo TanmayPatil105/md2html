@@ -1,11 +1,12 @@
 A markdown parser than produces a equivalent HTML document.
 
 ### Support
-It currently supports only three HTML tags!
+It currently supports four HTML tags!
 
 - `#`   ->  `<h1>`
 - `##`  ->  `<h2>`
 - `###` ->  `<h3>`
+- `-`   ->  `<li>`
 
 ### Uses
 
