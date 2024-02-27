@@ -51,6 +51,7 @@ md_unit_init (MDUnit **unit)
 
   (*unit)->type = UNIT_TYPE_NONE;
   (*unit)->content = NULL;
+  (*unit)->uri = NULL;
   (*unit)->next = NULL;
 }
 
@@ -88,6 +89,13 @@ find_md_unit_type (char *line)
       line[1] && line[1] != '-')
     {
       return UNIT_TYPE_BULLET;
+    }
+
+  // not a strict check
+  if (line[0] &&
+      line[0] == '!')
+    {
+      return UNIT_TYPE_IMAGE;
     }
 
   return UNIT_TYPE_TEXT;
@@ -131,8 +139,37 @@ find_md_content (char    *line,
       line += 2;
       return line;
     }
+  else if (type == UNIT_TYPE_IMAGE)
+    {
+      line += 1;
+      return line;
+    }
 
   return line;
+}
+
+/*
+ * @example: content = [Alt text](/images/md.svg)
+ */
+static char*
+find_image_uri (char *content)
+{
+  size_t len;
+  char *uri = NULL;
+
+  uri = strchr (content, '(') + 1;
+
+  len = strlen(uri);
+  uri[len - 1 ] = '\0';
+
+  return uri;
+}
+
+//FIXME: extract title
+static char*
+find_image_title ()
+{
+  return NULL;
 }
 
 static void
@@ -151,6 +188,12 @@ read_md_unit (char *line,
   unit->type = type;
   /* make a copy */
   unit->content = strdup (remove_trailing_new_line (find_md_content (line, type)));
+
+  if (unit->type == UNIT_TYPE_IMAGE)
+    {
+      unit->uri = find_image_uri (unit->content);
+      unit->content = find_image_title ();
+    }
 
   /* Append to md->elements */
   if (next == NULL)

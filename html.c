@@ -71,6 +71,8 @@ find_html_tag (UnitType type)
        return HTML_TAG_H3;
       case UNIT_TYPE_BULLET:
         return HTML_TAG_LI;
+      case UNIT_TYPE_IMAGE:
+        return HTML_TAG_IMG;
       default:
        return HTML_TAG_NONE;
     }
@@ -101,6 +103,7 @@ html_unit_init (HTMLUnit **unit,
   (*unit)->tag = find_html_tag (md_unit->type);
   /* pass ownership of content */
   (*unit)->content = md_unit->content;
+  (*unit)->uri = md_unit->uri;
 }
 
 /*
@@ -233,10 +236,18 @@ flush_html (HTML *html)
         fwrite (tags[unit->tag].start_tag, sizeof (char), strlen (tags[unit->tag].start_tag), file);
 
       // FIXME: do not print newlines
-      fwrite (unit->content, sizeof (char), strlen (unit->content), file);
+      if (unit->content)
+        fwrite (unit->content, sizeof (char), strlen (unit->content), file);
 
       if (tags[unit->tag].end_tag)
         fwrite (tags[unit->tag].end_tag, sizeof (char), strlen (tags[unit->tag].end_tag), file);
+
+      if (unit->uri && unit->tag == HTML_TAG_IMG)
+        {
+          char img[200];
+          sprintf (img, "<img src=\"%s\">", unit->uri);
+          fwrite (img, sizeof (char), strlen (img), file);
+        }
 
       fwrite (NEWLINE, sizeof (char), 1, file);
 

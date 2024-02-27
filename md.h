@@ -18,6 +18,7 @@ typedef enum {
   UNIT_TYPE_H2,
   UNIT_TYPE_H3,
   UNIT_TYPE_BULLET,
+  UNIT_TYPE_IMAGE,
   UNIT_TYPE_TEXT,
   UNIT_TYPE_NONE,
 } UnitType;
@@ -25,6 +26,7 @@ typedef enum {
 typedef struct MDUnit{
   UnitType type;
   char *content;
+  char *uri;
   struct MDUnit *next;
 } MDUnit;
 
