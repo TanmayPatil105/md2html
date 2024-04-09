@@ -22,6 +22,8 @@ main (int   argc,
   MDFile *file = NULL;
   MD *md = NULL;
   HTML *html = NULL;
+  char *file_name = NULL;
+  char *title = NULL;
 
   if (argc < 2)
     {
@@ -38,8 +40,15 @@ main (int   argc,
     }
 
   md = parse_md (file);
-  html = html_from_md (md,
-                       argv[2], argv[3]);
+
+  if (argc > 2)
+    {
+      file_name = argv[2];
+      if (argc > 3)
+        title = argv[3];
+    }
+
+  html = html_from_md (md, file_name, title);
   flush_html (html);
 
   /* debug */

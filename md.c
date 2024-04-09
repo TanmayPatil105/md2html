@@ -98,6 +98,13 @@ find_md_unit_type (char *line)
       return UNIT_TYPE_IMAGE;
     }
 
+  // empty line
+  if (line[0] &&
+      line[0] == '\n')
+    {
+      return UNIT_TYPE_NONE;
+    }
+
   return UNIT_TYPE_TEXT;
 }
 

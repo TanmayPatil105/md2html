@@ -19,6 +19,7 @@ typedef enum {
   HTML_TAG_LI,
   HTML_TAG_IMG,
   HTML_TAG_NONE,
+  HTML_TAG_NEWLINE,
 } HTMLTag;
 
 typedef struct HTMLUnit {

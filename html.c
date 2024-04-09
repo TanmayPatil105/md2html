@@ -4,6 +4,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "html.h"
 
 
@@ -16,8 +17,9 @@
 /*
  * @literals
  */
-#define NEWLINE  "\n"
-#define TABSPACE "\t"
+#define LINEBREAK "<br>"
+#define NEWLINE   "\n"
+#define TABSPACE  "\t"
 
 typedef struct {
   HTMLTag key;
@@ -73,6 +75,8 @@ find_html_tag (UnitType type)
         return HTML_TAG_LI;
       case UNIT_TYPE_IMAGE:
         return HTML_TAG_IMG;
+      case UNIT_TYPE_NONE:
+        return HTML_TAG_NEWLINE;
       default:
        return HTML_TAG_NONE;
     }
@@ -209,6 +213,14 @@ html_free (HTML *html)
   free (html);
 }
 
+static bool
+tag_is_heading (HTMLTag tag)
+{
+  return tag == HTML_TAG_H1 ||
+         tag == HTML_TAG_H2 ||
+         tag == HTML_TAG_H3;
+}
+
 /*
  * flush_html
  * @html: HTML doc
@@ -230,6 +242,9 @@ flush_html (HTML *html)
 
       unit = html->html[i];
 
+      /* print NEWLINE for formatting */
+      fwrite (NEWLINE, sizeof (char), 1, file);
+
       if (unit->tag == HTML_TAG_LI && ( i == 0 || html->html[i-1]->tag != HTML_TAG_LI))
         {
           fwrite (TABSPACE, sizeof (char), 1, file);
@@ -245,7 +260,6 @@ flush_html (HTML *html)
       if (tags[unit->tag].start_tag)
         fwrite (tags[unit->tag].start_tag, sizeof (char), strlen (tags[unit->tag].start_tag), file);
 
-      // FIXME: do not print newlines
       if (unit->content)
         fwrite (unit->content, sizeof (char), strlen (unit->content), file);
 
@@ -259,7 +273,8 @@ flush_html (HTML *html)
           fwrite (img, sizeof (char), strlen (img), file);
         }
 
-      fwrite (NEWLINE, sizeof (char), 1, file);
+      if (!tag_is_heading (unit->tag))
+        fwrite (LINEBREAK, sizeof (char), 4, file);
 
       if (unit->tag == HTML_TAG_LI && ( i == html->n_lines - 1 || html->html[i+1]->tag != HTML_TAG_LI))
         {
