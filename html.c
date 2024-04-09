@@ -155,7 +155,8 @@ final_template (HTMLFile *file)
  */
 HTML*
 html_from_md (MD   *md,
-              char *file_name)
+              char *file_name,
+              char *title)
 {
   uint i = 0;
   MDUnit *unit = NULL;
@@ -166,6 +167,9 @@ html_from_md (MD   *md,
   /* custom file_name */
   if (file_name != NULL)
     html->file_name = file_name;
+
+  if (title != NULL)
+    html->title = title;
 
   unit = md->elements;
   while (unit != NULL)
