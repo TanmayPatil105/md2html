@@ -148,18 +148,24 @@ final_template (HTMLFile *file)
 /*
  * html_from_md
  * @md: markdown doc
+ * @file_name: custom file name
  *
  * converts markdown doc into html
  * also takes *ownership* of content
  */
 HTML*
-html_from_md (MD *md)
+html_from_md (MD   *md,
+              char *file_name)
 {
   uint i = 0;
   MDUnit *unit = NULL;
   HTML *html = NULL;
 
   html_init (&html, md->n_lines);
+
+  /* custom file_name */
+  if (file_name != NULL)
+    html->file_name = file_name;
 
   unit = md->elements;
   while (unit != NULL)

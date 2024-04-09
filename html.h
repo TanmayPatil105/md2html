@@ -37,6 +37,7 @@ typedef struct HTML {
 } HTML;
 
 
-HTML *html_from_md (MD   *md);
+HTML *html_from_md (MD   *md,
+                    char *file_name);
 void  html_free    (HTML *html);
 void  flush_html   (HTML *html);

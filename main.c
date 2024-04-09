@@ -10,7 +10,7 @@
 void
 print_usage (char *binary)
 {
-  printf ("Usage: %s <md file_path>\n", binary);
+  printf ("Usage: %s <md file_path> <output file name>\n", binary);
 }
 
 int
@@ -38,7 +38,7 @@ main (int   argc,
     }
 
   md = parse_md (file);
-  html = html_from_md (md);
+  html = html_from_md (md, argv[2]);
   flush_html (html);
 
   /* debug */
