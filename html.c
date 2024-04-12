@@ -278,6 +278,7 @@ flush_html (HTML *html)
 
       if (unit->tag == HTML_TAG_LI && ( i == html->n_lines - 1 || html->html[i+1]->tag != HTML_TAG_LI))
         {
+          fwrite (NEWLINE, sizeof (char), 1, file);
           fwrite (TABSPACE, sizeof (char), 1, file);
           fwrite ("</ul>", sizeof (char), strlen ("</ul>"), file);
           fwrite (NEWLINE, sizeof (char), 1, file);
