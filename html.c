@@ -105,8 +105,8 @@ html_unit_init (HTMLUnit **unit,
     }
 
   (*unit)->tag = find_html_tag (md_unit->type);
-  /* pass ownership of content */
-  (*unit)->content = md_unit->content;
+  if (md_unit->content != NULL)
+    (*unit)->content = strdup (md_unit->content);
   (*unit)->uri = md_unit->uri;
 }
 

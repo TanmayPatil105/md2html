@@ -264,6 +264,9 @@ md_free (MD *md)
   while (unit != NULL)
     {
       next = unit->next;
+      if (unit->content != NULL)
+        free (unit->content);
+
       free (unit);
       unit = next;
     }
