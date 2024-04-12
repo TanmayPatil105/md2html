@@ -130,7 +130,7 @@ init_template (HTMLFile *file,
     "\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
     "\t<title>%s</title>\n"
     "</head>\n"
-    "<body>\n", html->title);
+    "<body>", html->title);
 
   /* inject init template HTML */
   fprintf (file, "%s", template);
@@ -142,7 +142,7 @@ final_template (HTMLFile *file)
   char template[20];
 
   sprintf (template,
-    "</body>\n"
+    "\n</body>\n"
     "</html>\n");
 
   /* inject final template HTML */
