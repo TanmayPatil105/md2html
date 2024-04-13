@@ -21,6 +21,15 @@
 #define NEWLINE   "\n"
 #define TABSPACE  "\t"
 
+#define INSERT_NEWLINE(file) \
+        fwrite (NEWLINE, sizeof(char), 1, file);
+
+#define INSERT_TABSPACE(file) \
+        fwrite (TABSPACE, sizeof (char), 1, file);
+
+#define INSERT_LINEBREAK(file) \
+        fwrite (LINEBREAK, sizeof (char), 4, file);
+
 #define UL_TOP_LEVEL_START(file)                               \
         fwrite (TABSPACE, sizeof (char), 1, file);             \
         fwrite ("<ul>", sizeof (char), strlen ("<ul>"), file); \
@@ -231,6 +240,15 @@ tag_is_heading (HTMLTag tag)
          tag == HTML_TAG_H3;
 }
 
+void
+insert_img_tag (HTMLFile *file,
+                char     *uri)
+{
+  char img[200];
+  sprintf (img, "<img src=\"%s\">", uri);
+  fwrite (img, sizeof (char), strlen (img), file);
+}
+
 /*
  * flush_html
  * @html: HTML doc
@@ -253,17 +271,19 @@ flush_html (HTML *html)
       unit = html->html[i];
 
       /* print NEWLINE for formatting */
-      fwrite (NEWLINE, sizeof (char), 1, file);
+      INSERT_NEWLINE (file);
 
-      if (unit->tag == HTML_TAG_LI && ( i == 0 || html->html[i-1]->tag != HTML_TAG_LI))
+      if (unit->tag == HTML_TAG_LI &&
+          (i == 0 ||
+           html->html[i-1]->tag != HTML_TAG_LI))
         {
           UL_TOP_LEVEL_START (file);
         }
 
-      fwrite (TABSPACE, sizeof (char), 1, file);
+      INSERT_TABSPACE (file);
 
       if (unit->tag == HTML_TAG_LI)
-        fwrite (TABSPACE, sizeof (char), 1, file);
+        INSERT_TABSPACE (file);
 
       if (tags[unit->tag].start_tag)
         fwrite (tags[unit->tag].start_tag, sizeof (char), strlen (tags[unit->tag].start_tag), file);
@@ -275,16 +295,14 @@ flush_html (HTML *html)
         fwrite (tags[unit->tag].end_tag, sizeof (char), strlen (tags[unit->tag].end_tag), file);
 
       if (unit->uri && unit->tag == HTML_TAG_IMG)
-        {
-          char img[200];
-          sprintf (img, "<img src=\"%s\">", unit->uri);
-          fwrite (img, sizeof (char), strlen (img), file);
-        }
+        insert_img_tag (file, unit->uri);
 
       if (!tag_is_heading (unit->tag))
-        fwrite (LINEBREAK, sizeof (char), 4, file);
+        INSERT_LINEBREAK (file);
 
-      if (unit->tag == HTML_TAG_LI && ( i == html->n_lines - 1 || html->html[i+1]->tag != HTML_TAG_LI))
+      if (unit->tag == HTML_TAG_LI &&
+          (i == html->n_lines - 1 ||
+           html->html[i+1]->tag != HTML_TAG_LI))
         {
           UL_TOP_LEVEL_END (file);
         }
