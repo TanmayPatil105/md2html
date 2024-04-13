@@ -1,7 +1,7 @@
 # Heading 1
 
 - C
-- C++
-- Python
++ C++
+* Python
 
 ## Heading 2

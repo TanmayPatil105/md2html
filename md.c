@@ -12,6 +12,19 @@
         if (ptr == NULL) return NULL;
 
 /*
+ * Markdown Lists:
+ *
+ * We can make unordered list by preceding one ore more
+ * lines of text with `-`, `*` or `+`
+ *
+ */
+#define IS_LIST(line)                           \
+        (line[0] && line[1] &&                  \
+         ((line[0] == '-' && line[1] != '-') || \
+          (line[0] == '*' && line[1] != '*') || \
+          (line[0] == '+' && line[1] != '+')))
+
+/*
  * md_init
  * @md: allocates memory for MD object
  *
@@ -84,9 +97,7 @@ find_md_unit_type (char *line)
         }
     }
 
-  if (line[0] &&
-      line[0] == '-' &&
-      line[1] && line[1] != '-')
+  if (IS_LIST (line))
     {
       return UNIT_TYPE_BULLET;
     }
