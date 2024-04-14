@@ -46,11 +46,16 @@ typedef struct {
   char *end_tag;
 } html_tags;
 
+/*
+ * Keep order in-sync with html.h
+ */
 static html_tags tags[] = {
   {HTML_TAG_H1, "<h1>", "</h1>"},
   {HTML_TAG_H2, "<h2>", "</h2>"},
   {HTML_TAG_H3, "<h3>", "</h3>"},
   {HTML_TAG_LI, "<li>", "</li>"},
+  {HTML_TAG_IMG, NULL, NULL},
+  {HTML_TAG_BLOCKQUOTE, "<blockquote>", "</blockquote>"},
   {HTML_TAG_NONE, NULL, NULL},
 };
 
@@ -94,6 +99,8 @@ find_html_tag (UnitType type)
         return HTML_TAG_LI;
       case UNIT_TYPE_IMAGE:
         return HTML_TAG_IMG;
+      case UNIT_TYPE_QUOTE:
+        return HTML_TAG_BLOCKQUOTE;
       case UNIT_TYPE_NONE:
         return HTML_TAG_NEWLINE;
       default:
@@ -237,7 +244,8 @@ tag_is_heading (HTMLTag tag)
 {
   return tag == HTML_TAG_H1 ||
          tag == HTML_TAG_H2 ||
-         tag == HTML_TAG_H3;
+         tag == HTML_TAG_H3 ||
+         tag == HTML_TAG_BLOCKQUOTE;
 }
 
 void

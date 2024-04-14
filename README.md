@@ -8,6 +8,7 @@ It currently supports following HTML tags:
 - `###`   ->  `<h3>`
 - `-`     ->  `<li>`
 - `![]()` ->  `<img>`
+- `>`     ->  `<blockquote>`
 
 ## Formatting
 

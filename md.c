@@ -72,6 +72,32 @@ md_unit_init (MDUnit **unit)
 static UnitType
 find_md_unit_type (char *line)
 {
+  // empty line
+  if (line[0] &&
+      line[0] == '\n')
+    {
+      return UNIT_TYPE_NONE;
+    }
+
+  // not a strict check
+  if (line[0] &&
+      line[0] == '!')
+    {
+      return UNIT_TYPE_IMAGE;
+    }
+
+  if (line[0] &&
+      line[0] == '>' &&
+      line[1] && line[1] == ' ')
+    {
+      return UNIT_TYPE_QUOTE;
+    }
+
+  if (IS_LIST (line))
+    {
+      return UNIT_TYPE_BULLET;
+    }
+
   if (line[0] &&
       line[0] == '#')
     {
@@ -82,7 +108,9 @@ find_md_unit_type (char *line)
               line[2] == '#')
             {
               if (line[3] == ' ')
-                return UNIT_TYPE_H3;
+                {
+                  return UNIT_TYPE_H3;
+                }
             }
           else if (line[2] &&
                    line[2] == ' ')
@@ -97,24 +125,7 @@ find_md_unit_type (char *line)
         }
     }
 
-  if (IS_LIST (line))
-    {
-      return UNIT_TYPE_BULLET;
-    }
 
-  // not a strict check
-  if (line[0] &&
-      line[0] == '!')
-    {
-      return UNIT_TYPE_IMAGE;
-    }
-
-  // empty line
-  if (line[0] &&
-      line[0] == '\n')
-    {
-      return UNIT_TYPE_NONE;
-    }
 
   return UNIT_TYPE_TEXT;
 }
@@ -137,30 +148,28 @@ static char*
 find_md_content (char    *line,
                  UnitType type)
 {
-  if (type == UNIT_TYPE_H1)
+  switch(type)
     {
-      line += 2;
-      return line;
-    }
-  else if (type == UNIT_TYPE_H2)
-    {
-      line += 3;
-      return line;
-    }
-  else if (type == UNIT_TYPE_H3)
-    {
-      line += 4;
-      return line;
-    }
-  else if (type == UNIT_TYPE_BULLET)
-    {
-      line += 2;
-      return line;
-    }
-  else if (type == UNIT_TYPE_IMAGE)
-    {
-      line += 1;
-      return line;
+      case UNIT_TYPE_H1:
+        line += 2;
+        break;
+      case UNIT_TYPE_H2:
+        line += 3;
+        break;
+      case UNIT_TYPE_H3:
+        line += 4;
+        break;
+      case UNIT_TYPE_BULLET:
+        line += 2;
+        break;
+      case UNIT_TYPE_QUOTE:
+        line += 2;
+        break;
+      case UNIT_TYPE_IMAGE:
+        line += 1;
+        break;
+      default:
+        break;
     }
 
   return line;
