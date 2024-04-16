@@ -50,3 +50,17 @@ content 3
 </body>
 </html>
 ```
+
+## Build
+
+```console
+$ mkdir build && cd build
+```
+
+```console
+$ cmake ..
+```
+
+```console
+$ make
+```
