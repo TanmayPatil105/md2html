@@ -58,7 +58,7 @@ $ mkdir build && cd build
 ```
 
 ```console
-$ cmake ..
+$ cmake .. -DCMAKE_INSTALL_PREFIX=/usr
 ```
 
 ```console
