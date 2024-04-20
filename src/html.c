@@ -6,39 +6,13 @@
 #include <string.h>
 #include <stdbool.h>
 #include "html.h"
-
+#include "macro.h"
 
 /*
  * @default HTML values
  */
 #define DEFAULT_HTML_FILE_NAME "index.html"
 #define DEFAULT_HTML_TITLE     "Document"
-
-/*
- * @literals
- */
-#define LINEBREAK "<br>"
-#define NEWLINE   "\n"
-#define TABSPACE  "\t"
-
-#define INSERT_NEWLINE(file) \
-        fwrite (NEWLINE, sizeof(char), 1, file);
-
-#define INSERT_TABSPACE(file) \
-        fwrite (TABSPACE, sizeof (char), 1, file);
-
-#define INSERT_LINEBREAK(file) \
-        fwrite (LINEBREAK, sizeof (char), 4, file);
-
-#define UL_TOP_LEVEL_START(file)                               \
-        fwrite (TABSPACE, sizeof (char), 1, file);             \
-        fwrite ("<ul>", sizeof (char), strlen ("<ul>"), file); \
-        fwrite (NEWLINE, sizeof (char), 1, file);
-
-#define UL_TOP_LEVEL_END(file)                                   \
-        fwrite (NEWLINE, sizeof (char), 1, file);                \
-        fwrite (TABSPACE, sizeof (char), 1, file);               \
-        fwrite ("</ul>", sizeof (char), strlen ("</ul>"), file);
 
 typedef struct {
   HTMLTag key;
