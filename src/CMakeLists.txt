@@ -9,6 +9,6 @@ set (CMAKE_C_STANDARD 17)
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-add_executable(mdto ${SOURCES})
+add_executable(md2html ${SOURCES})
 
-install(TARGETS mdto DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+install(TARGETS md2html DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
