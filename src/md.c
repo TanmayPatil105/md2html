@@ -25,6 +25,35 @@
           (line[0] == '+' && line[1] != '+')))
 
 /*
+ * Code blocks in markdown
+ *
+ * ```
+ * int main() {
+ * 	printf ("Ok computer!\n");
+ * 	return 0;
+ * }
+ * ```
+ */
+
+static int code_block_count = 0;
+
+#define IS_CODE_BLOCK_START(line)     \
+        (line[0] && line[0] == '`' && \
+         line[1] && line[1] == '`' && \
+         line[2] && line[2] == '`' && \
+         (code_block_count % 2 == 0))
+
+#define IS_CODE_BLOCK_END(line)       \
+        (line[0] && line[0] == '`' && \
+         line[1] && line[1] == '`' && \
+         line[2] && line[2] == '`' && \
+         (code_block_count % 2 == 1))
+
+#define IS_CODE_BLOCK_LINE(prev)               \
+        (prev == UNIT_TYPE_CODE_BLOCK_START || \
+         prev == UNIT_TYPE_CODE_BLOCK_LINE)
+
+/*
  * md_init
  * @md: allocates memory for MD object
  *
@@ -68,18 +97,25 @@ md_unit_init (MDUnit **unit)
   (*unit)->next = NULL;
 }
 
-// dirty code
+
+static UnitType prev_md_unit = UNIT_TYPE_NONE;
+
+/* Notes:
+ *
+ * UNIT_TYPE_NONE: empty line
+ */
 static UnitType
 find_md_unit_type (char *line)
 {
-  // empty line
+  /* empty line */
   if (line[0] &&
-      line[0] == '\n')
+      line[0] == '\n' &&
+      !IS_CODE_BLOCK_LINE (prev_md_unit))
     {
       return UNIT_TYPE_NONE;
     }
 
-  // not a strict check
+  /* not a strict check */
   if (line[0] &&
       line[0] == '!')
     {
@@ -96,6 +132,24 @@ find_md_unit_type (char *line)
   if (IS_LIST (line))
     {
       return UNIT_TYPE_BULLET;
+    }
+
+
+  if (IS_CODE_BLOCK_START (line))
+    {
+      code_block_count++;
+      return UNIT_TYPE_CODE_BLOCK_START;
+    }
+
+  if (IS_CODE_BLOCK_END (line))
+    {
+      code_block_count++;
+      return UNIT_TYPE_CODE_BLOCK_END;
+    }
+
+  if (IS_CODE_BLOCK_LINE (prev_md_unit))
+    {
+      return UNIT_TYPE_CODE_BLOCK_LINE;
     }
 
   if (line[0] &&
@@ -125,8 +179,6 @@ find_md_unit_type (char *line)
         }
     }
 
-
-
   return UNIT_TYPE_TEXT;
 }
 
@@ -134,6 +186,9 @@ find_md_unit_type (char *line)
 static char*
 remove_trailing_new_line (char *line)
 {
+  if (line == NULL)
+    return NULL;
+
   size_t len;
 
   len = strlen(line) - 1;
@@ -168,6 +223,10 @@ find_md_content (char    *line,
       case UNIT_TYPE_IMAGE:
         line += 1;
         break;
+      case UNIT_TYPE_CODE_BLOCK_START:
+        return NULL;
+      case UNIT_TYPE_CODE_BLOCK_END:
+        return NULL;
       default:
         break;
     }
@@ -206,15 +265,18 @@ read_md_unit (char *line,
   MDUnit *unit = NULL;
   MDUnit *next = NULL;
   UnitType type;
+  char *content = NULL;
 
   md_unit_init (&unit);
   next = md->elements;
 
   type = find_md_unit_type (line);
-
+  prev_md_unit = type;
   unit->type = type;
+
   /* make a copy */
-  unit->content = strdup (remove_trailing_new_line (find_md_content (line, type)));
+  if (content = remove_trailing_new_line (find_md_content (line, type)))
+    unit->content = strdup (content);
 
   if (unit->type == UNIT_TYPE_IMAGE)
     {

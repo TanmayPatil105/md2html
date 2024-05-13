@@ -14,14 +14,17 @@ typedef unsigned int uint;
 typedef FILE MDFile;
 
 typedef enum {
-  UNIT_TYPE_H1,
-  UNIT_TYPE_H2,
-  UNIT_TYPE_H3,
-  UNIT_TYPE_BULLET,
-  UNIT_TYPE_IMAGE,
-  UNIT_TYPE_QUOTE,
-  UNIT_TYPE_TEXT,
-  UNIT_TYPE_NONE,
+  UNIT_TYPE_H1,               /* 0 */
+  UNIT_TYPE_H2,               /* 1 */
+  UNIT_TYPE_H3,               /* 2 */
+  UNIT_TYPE_BULLET,           /* 3 */
+  UNIT_TYPE_IMAGE,            /* 4 */
+  UNIT_TYPE_QUOTE,            /* 5 */
+  UNIT_TYPE_CODE_BLOCK_START, /* 6 */
+  UNIT_TYPE_CODE_BLOCK_END,   /* 7 */
+  UNIT_TYPE_CODE_BLOCK_LINE,  /* 8 */
+  UNIT_TYPE_TEXT,             /* 9 */
+  UNIT_TYPE_NONE,             /* 10 */
 } UnitType;
 
 typedef struct MDUnit{

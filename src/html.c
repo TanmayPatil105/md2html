@@ -30,6 +30,8 @@ static html_tags tags[] = {
   {HTML_TAG_LI, "<li>", "</li>"},
   {HTML_TAG_IMG, NULL, NULL},
   {HTML_TAG_BLOCKQUOTE, "<blockquote><q>", "</q></blockquote>"},
+  {HTML_TAG_CODE_BLOCK_START, "<pre>", NULL},
+  {HTML_TAG_CODE_BLOCK_END, NULL, "</pre>"},
   {HTML_TAG_NONE, NULL, NULL},
 };
 
@@ -77,6 +79,12 @@ find_html_tag (UnitType type)
         return HTML_TAG_BLOCKQUOTE;
       case UNIT_TYPE_NONE:
         return HTML_TAG_NEWLINE;
+      case UNIT_TYPE_CODE_BLOCK_START:
+        return HTML_TAG_CODE_BLOCK_START;
+      case UNIT_TYPE_CODE_BLOCK_END:
+        return HTML_TAG_CODE_BLOCK_END;
+      case UNIT_TYPE_CODE_BLOCK_LINE:
+        return HTML_TAG_CODE_BLOCK_LINE;
       default:
        return HTML_TAG_NONE;
     }
@@ -120,7 +128,7 @@ static void
 init_template (HTMLFile *file,
                HTML     *html)
 {
-  char template[200];
+  char template[1000];
 
   sprintf (template,
     "<!DOCTYPE html>\n"
@@ -222,6 +230,15 @@ tag_is_heading (HTMLTag tag)
          tag == HTML_TAG_BLOCKQUOTE;
 }
 
+
+static bool
+tag_is_code_block (HTMLTag tag)
+{
+  return tag == HTML_TAG_CODE_BLOCK_LINE ||
+         tag == HTML_TAG_CODE_BLOCK_START ||
+         tag == HTML_TAG_CODE_BLOCK_END;
+}
+
 void
 insert_img_tag (HTMLFile *file,
                 char     *uri)
@@ -262,7 +279,8 @@ flush_html (HTML *html)
           UL_TOP_LEVEL_START (file);
         }
 
-      INSERT_TABSPACE (file);
+      if (!tag_is_code_block(unit->tag))
+        INSERT_TABSPACE (file);
 
       if (unit->tag == HTML_TAG_LI)
         INSERT_TABSPACE (file);
@@ -279,7 +297,7 @@ flush_html (HTML *html)
       if (unit->uri && unit->tag == HTML_TAG_IMG)
         insert_img_tag (file, unit->uri);
 
-      if (!tag_is_heading (unit->tag))
+      if (!tag_is_heading (unit->tag) && !tag_is_code_block (unit->tag))
         INSERT_LINEBREAK (file);
 
       if (unit->tag == HTML_TAG_LI &&

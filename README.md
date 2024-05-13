@@ -9,6 +9,7 @@ It currently supports following HTML tags:
 - `-`     ->  `<li>`
 - `![]()` ->  `<img>`
 - `>`     ->  `<blockquote>`
+- `"```"` ->  `<pre>`
 
 ## Formatting
 
