@@ -279,7 +279,7 @@ flush_html (HTML *html)
           UL_TOP_LEVEL_START (file);
         }
 
-      if (!tag_is_code_block(unit->tag))
+      if (unit->tag != HTML_TAG_CODE_BLOCK_LINE)
         INSERT_TABSPACE (file);
 
       if (unit->tag == HTML_TAG_LI)
