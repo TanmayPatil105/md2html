@@ -55,13 +55,5 @@ content 3
 ## Build
 
 ```console
-$ mkdir build && cd build
-```
-
-```console
-$ cmake .. -DCMAKE_INSTALL_PREFIX=/usr
-```
-
-```console
-$ make
+$ sudo sh ci/build-and-install.sh
 ```
