@@ -128,7 +128,16 @@ static void
 init_template (HTMLFile *file,
                HTML     *html)
 {
+  HTMLUnit *unit = NULL;
   char template[1000];
+
+  if (html->html != NULL &&
+      (unit = html->html[0]) &&
+      unit->tag == HTML_TAG_H1)
+    {
+      /* FIXME: take ownership of title */
+      html->title = unit->content;
+    }
 
   sprintf (template,
     "<!DOCTYPE html>\n"
