@@ -17,13 +17,10 @@ int
 main (int   argc,
       char *argv[])
 {
-  /* debug */
-  // MDUnit *unit = NULL;
   MDFile *file = NULL;
   MD *md = NULL;
   HTML *html = NULL;
   char *file_name = NULL;
-  char *title = NULL;
 
   if (argc < 2)
     {
@@ -41,24 +38,14 @@ main (int   argc,
 
   md = parse_md (file);
 
+  /* FIXME: handle args correctly */
   if (argc > 2)
     {
       file_name = argv[2];
-      if (argc > 3)
-        title = argv[3];
     }
 
-  html = html_from_md (md, file_name, title);
+  html = html_from_md (md, file_name);
   flush_html (html);
-
-  /* debug */
-  /*
-	unit = md->elements;
-  while (unit != NULL)
-    {
-      printf ("%s", unit->content);
-      unit = unit->next;
-    }*/
 
   /* free */
   html_free (html);
