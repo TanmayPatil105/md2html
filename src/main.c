@@ -11,7 +11,16 @@
 void
 print_usage (char *binary)
 {
-  printf ("Usage: %s <md file_path> <output file name> <document title>\n", binary);
+  printf("Usage: %s -i MD_FILE\n"
+  "Generate equivalent HTML of md\n"
+  "\n"
+  "Mandatory arguments:\n"
+  "  -i, --input                input markdown file"
+  "\n"
+  "Optional arguments:\n"
+  "  -o, --output               name of output HTML doc\n"
+  "  -t, --title                title of output HTML doc\n"
+  "  -h, --help                 display this message\n", binary);
 }
 
 int
@@ -30,6 +39,12 @@ main (int   argc,
       fprintf (stderr, "%s: %s\n",
                argv[0], params->error);
       return 1;
+    }
+
+  if (params->help)
+    {
+      print_usage (argv[0]);
+      return 0;
     }
 
   file = fopen (params->i_file, "r");

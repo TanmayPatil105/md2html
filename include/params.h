@@ -16,6 +16,7 @@ typedef struct Params {
   bool  inline_css;  /* add inline css */
   char *i_css_file;  /* set inline css equal to contents of .css file */
 
+  bool help;         /* display usage message */
   char *error;       /* error while parsing arguments */
 } Params;
 
