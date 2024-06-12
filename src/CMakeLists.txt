@@ -1,5 +1,6 @@
 set(SOURCES
 		main.c
+		params.c
 		md.c
 		html.c
 )

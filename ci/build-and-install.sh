@@ -7,4 +7,6 @@ cd build
 cmake ..
 
 # build and install
-make install
+make
+
+id | grep -q "root" && make install

@@ -5,6 +5,7 @@
 #pragma once
 
 #include <stdio.h>
+#include "params.h"
 #include "md.h"
 
 /*
@@ -42,7 +43,7 @@ typedef struct HTML {
 } HTML;
 
 
-HTML *html_from_md (MD   *md,
-                    char *file_name);
+HTML *html_from_md (MD     *md,
+                    Params *params);
 void  html_free    (HTML *html);
 void  flush_html   (HTML *html);

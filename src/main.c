@@ -3,6 +3,7 @@
  */
 
 #include <stdio.h>
+#include "params.h"
 #include "md.h"
 #include "html.h"
 
@@ -17,39 +18,37 @@ int
 main (int   argc,
       char *argv[])
 {
+  Params *params = NULL;
   MDFile *file = NULL;
   MD *md = NULL;
   HTML *html = NULL;
-  char *file_name = NULL;
 
-  if (argc < 2)
+  params = params_parse (argc, argv);
+
+  if (params->error != NULL)
     {
-      print_usage (argv[0]);
+      fprintf (stderr, "%s: %s\n",
+               argv[0], params->error);
       return 1;
     }
 
-  file = fopen (argv[1], "r");
+  file = fopen (params->i_file, "r");
   if (file == NULL)
     {
-      printf ("No such file or directory.\n");
-      print_usage (argv[0]);
+      fprintf (stderr, "%s: %s: No such file or directory\n",
+               argv[0], params->i_file);
       return 1;
     }
 
   md = parse_md (file);
 
-  /* FIXME: handle args correctly */
-  if (argc > 2)
-    {
-      file_name = argv[2];
-    }
-
-  html = html_from_md (md, file_name);
+  html = html_from_md (md, params);
   flush_html (html);
 
   /* free */
   html_free (html);
   md_free (md);
+  params_free (params);
   fclose (file);
 
   return 0;

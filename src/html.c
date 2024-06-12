@@ -11,8 +11,8 @@
 /*
  * @default HTML values
  */
-#define DEFAULT_HTML_FILE_NAME "index.html"
-#define DEFAULT_HTML_TITLE     "Document"
+#define __DEFAULT_HTML_FILE_NAME__ "index.html"
+#define __DEFAULT_HTML_TITLE__     "Document"
 
 typedef struct {
   HTMLTag key;
@@ -32,7 +32,9 @@ static html_tags tags[] = {
   {HTML_TAG_BLOCKQUOTE, "<blockquote><q>", "</q></blockquote>"},
   {HTML_TAG_CODE_BLOCK_START, "<pre>", NULL},
   {HTML_TAG_CODE_BLOCK_END, NULL, "</pre>"},
+  {HTML_TAG_CODE_BLOCK_LINE, NULL, NULL},
   {HTML_TAG_NONE, NULL, NULL},
+  {HTML_TAG_NEWLINE, NULL, NULL},
 };
 
 /*
@@ -54,8 +56,8 @@ html_init (HTML **html,
       return;
     }
 
-  (*html)->file_name = DEFAULT_HTML_FILE_NAME;
-  (*html)->title = DEFAULT_HTML_TITLE;
+  (*html)->file_name = strdup (__DEFAULT_HTML_FILE_NAME__);
+  (*html)->title = NULL;
   (*html)->n_lines = n_lines;
   (*html)->html = malloc (n_lines * sizeof (HTMLUnit));
 }
@@ -131,12 +133,12 @@ init_template (HTMLFile *file,
   HTMLUnit *unit = NULL;
   char template[1000];
 
-  if (html->html != NULL &&
-      (unit = html->html[0]) &&
-      unit->tag == HTML_TAG_H1)
+  if (html->title == NULL)
     {
-      /* FIXME: take ownership of title */
-      html->title = unit->content;
+      if (html->html != NULL && (unit = html->html[0]) && unit->tag == HTML_TAG_H1)
+        html->title = strdup (unit->content);
+      else
+        html->title = strdup (__DEFAULT_HTML_TITLE__);
     }
 
   sprintf (template,
@@ -175,8 +177,8 @@ final_template (HTMLFile *file)
  * also takes *ownership* of content
  */
 HTML*
-html_from_md (MD   *md,
-              char *file_name)
+html_from_md (MD     *md,
+              Params *params)
 {
   uint i = 0;
   MDUnit *unit = NULL;
@@ -185,8 +187,11 @@ html_from_md (MD   *md,
   html_init (&html, md->n_lines);
 
   /* custom file_name */
-  if (file_name != NULL)
-    html->file_name = file_name;
+  if (params->o_file != NULL)
+    html->file_name = strdup (params->o_file);
+
+  if (params->title != NULL)
+    html->title = strdup (params->title);
 
   unit = md->elements;
   while (unit != NULL)
@@ -221,6 +226,11 @@ html_free (HTML *html)
 
       free (unit);
     }
+
+  if (html->title != NULL)
+    free (html->title);
+  if (html->file_name != NULL)
+    free (html->file_name);
 
   free (html->html);
   free (html);
