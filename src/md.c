@@ -371,5 +371,8 @@ md_free (MD *md)
       unit = next;
     }
 
+  if (unit->uri != NULL)
+    free (unit->uri);
+
   free (md);
 }
