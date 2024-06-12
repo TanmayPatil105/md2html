@@ -122,7 +122,8 @@ static void
 html_unit_init (HTMLUnit **unit,
                 MDUnit    *md_unit)
 {
-  *unit = malloc (sizeof (HTMLUnit));
+  *unit = (HTMLUnit *) malloc (sizeof (HTMLUnit));
+  memset(*unit, 0, sizeof(HTMLUnit));
 
   // malloc fails
   if (*unit == NULL)

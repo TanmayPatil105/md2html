@@ -99,7 +99,8 @@ md_init (MD **md)
 static void
 md_unit_init (MDUnit **unit)
 {
-  *unit = malloc (sizeof (MDUnit));
+  *unit = (MDUnit *) malloc (sizeof (MDUnit));
+  memset (*unit, 0, sizeof(unit));
 
   // malloc fails
   if (*unit == NULL)
