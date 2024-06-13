@@ -271,8 +271,9 @@ find_image_uri (char *content)
 
 //FIXME: extract title
 static char*
-find_image_title ()
+find_image_title (char *content)
 {
+  free (content);
   return NULL;
 }
 
@@ -298,8 +299,8 @@ read_md_unit (char *line,
 
   if (unit->type == UNIT_TYPE_IMAGE)
     {
-      unit->uri = find_image_uri (unit->content);
-      unit->content = find_image_title ();
+      unit->uri = strdup (find_image_uri (unit->content));
+      unit->content = find_image_title (unit->content);
     }
 
   /* Append to md->elements */
@@ -366,13 +367,12 @@ md_free (MD *md)
       next = unit->next;
       if (unit->content != NULL)
         free (unit->content);
+      if (unit->uri != NULL)
+        free (unit->uri);
 
       free (unit);
       unit = next;
     }
-
-  if (unit->uri != NULL)
-    free (unit->uri);
 
   free (md);
 }
