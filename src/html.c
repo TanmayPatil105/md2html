@@ -272,13 +272,20 @@ tag_is_code_block (HTMLTag tag)
          tag == HTML_TAG_CODE_BLOCK_END;
 }
 
-void
+static void
 insert_img_tag (HTMLFile *file,
                 char     *uri)
 {
   char img[200];
   sprintf (img, "<img src=\"%s\">", uri);
   fwrite (img, sizeof (char), strlen (img), file);
+}
+
+static void
+flush_content (HTMLFile *file,
+               char     *content)
+{
+  fwrite (content, sizeof (char), strlen (content), file);
 }
 
 /*
@@ -322,7 +329,7 @@ flush_html (HTML *html)
         fwrite (tags[unit->tag].start_tag, sizeof (char), strlen (tags[unit->tag].start_tag), file);
 
       if (unit->content)
-        fwrite (unit->content, sizeof (char), strlen (unit->content), file);
+        flush_content (file, unit->content);
 
       if (tags[unit->tag].end_tag)
         fwrite (tags[unit->tag].end_tag, sizeof (char), strlen (tags[unit->tag].end_tag), file);
