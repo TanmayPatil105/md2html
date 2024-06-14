@@ -9,6 +9,8 @@ It currently supports following HTML tags:
 - `-`     ->  `<li>`
 - `![]()` ->  `<img>`
 - `>`     ->  `<blockquote>`
+- '* text *' -> `<b> text </b>
+- '_ text _' -> `<i> text </i>
 - `"```"` ->  `<pre>`
 
 ## Formatting
@@ -37,7 +39,7 @@ content 3
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Document</title>
+	<title>Heading 1</title>
 </head>
 <body>
 	<h1>Heading 1</h1>

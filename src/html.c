@@ -281,11 +281,77 @@ insert_img_tag (HTMLFile *file,
   fwrite (img, sizeof (char), strlen (img), file);
 }
 
+static char *
+replace_bold_and_italics (char *content)
+{
+  char *replaced = NULL;
+  char *ptr = NULL;
+  size_t len = 0;
+
+  // empty string
+  replaced = calloc (sizeof (char), 1);
+  ptr = content;
+
+  while (*ptr)
+    {
+      if (*ptr == '*')
+        {
+          char *start = ptr + 1;
+          char *end = strchr (start, '*');
+          if (end)
+            {
+              replaced = realloc (replaced, len + end - start + 8);
+              sprintf (replaced + len, "<b>%.*s</b>", (int)(end - start), start);
+              len += end - start + 7;
+              ptr = end + 1;
+            }
+          else
+            {
+              replaced = realloc (replaced, len + 2);
+              replaced[len++] = *ptr++;
+              replaced[len] = '\0';
+            }
+        }
+      else if (*ptr == '_')
+        {
+          char *start = ptr + 1;
+          char *end = strchr (start, '_');
+          if (end)
+            {
+              replaced = realloc (replaced, len + end - start + 8);
+              sprintf (replaced + len, "<i>%.*s</i>", (int)(end - start), start);
+              len += end - start + 7;
+              ptr = end + 1;
+            }
+          else
+            {
+              replaced = realloc (replaced, len + 2);
+              replaced[len++] = *ptr++;
+              replaced[len] = '\0';
+            }
+        }
+      else
+        {
+          replaced = realloc (replaced, len + 2);
+          replaced[len++] = *ptr++;
+          replaced[len] = '\0';
+        }
+    }
+
+  /* give ownership */
+  return replaced;
+}
+
 static void
 flush_content (HTMLFile *file,
                char     *content)
 {
-  fwrite (content, sizeof (char), strlen (content), file);
+  char *replaced = NULL;
+
+  replaced = replace_bold_and_italics (content);
+  fwrite (replaced, sizeof (char), strlen (replaced), file);
+
+  free (replaced);
 }
 
 /*
