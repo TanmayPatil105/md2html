@@ -9,8 +9,8 @@ It currently supports following HTML tags:
 - `-`     ->  `<li>`
 - `![]()` ->  `<img>`
 - `>`     ->  `<blockquote>`
-- '* text *' -> `<b> text </b>
-- '_ text _' -> `<i> text </i>
+- `* text *` -> `<b> text </b>`
+- `_ text _` -> `<i> text </i>`
 - `"```"` ->  `<pre>`
 
 ## Formatting
