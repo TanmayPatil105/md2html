@@ -45,7 +45,6 @@ static html_tags tags[] = {
   {HTML_TAG_H2, "<h2>", "</h2>"},
   {HTML_TAG_H3, "<h3>", "</h3>"},
   {HTML_TAG_LI, "<li>", "</li>"},
-  {HTML_TAG_IMG, NULL, NULL},
   {HTML_TAG_BLOCKQUOTE, "<blockquote><q>", "</q></blockquote>"},
   {HTML_TAG_CODE_BLOCK_START, "<pre>", NULL},
   {HTML_TAG_CODE_BLOCK_END, NULL, "</pre>"},
@@ -92,8 +91,6 @@ find_html_tag (UnitType type)
        return HTML_TAG_H3;
       case UNIT_TYPE_BULLET:
         return HTML_TAG_LI;
-      case UNIT_TYPE_IMAGE:
-        return HTML_TAG_IMG;
       case UNIT_TYPE_QUOTE:
         return HTML_TAG_BLOCKQUOTE;
       case UNIT_TYPE_NONE:
@@ -272,15 +269,6 @@ tag_is_code_block (HTMLTag tag)
          tag == HTML_TAG_CODE_BLOCK_END;
 }
 
-static void
-insert_img_tag (HTMLFile *file,
-                char     *uri)
-{
-  char img[200];
-  sprintf (img, "<img src=\"%s\">", uri);
-  fwrite (img, sizeof (char), strlen (img), file);
-}
-
 static char *
 replace_bold_and_italics (char *content)
 {
@@ -423,9 +411,6 @@ flush_html (HTML *html)
 
       if (tags[unit->tag].end_tag)
         fwrite (tags[unit->tag].end_tag, sizeof (char), strlen (tags[unit->tag].end_tag), file);
-
-      if (unit->uri && unit->tag == HTML_TAG_IMG)
-        insert_img_tag (file, unit->uri);
 
       if (!tag_is_heading (unit->tag) && !tag_is_code_block (unit->tag))
         INSERT_LINEBREAK (file);

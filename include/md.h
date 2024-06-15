@@ -35,13 +35,12 @@ typedef enum {
   UNIT_TYPE_H2,               /* 1 */
   UNIT_TYPE_H3,               /* 2 */
   UNIT_TYPE_BULLET,           /* 3 */
-  UNIT_TYPE_IMAGE,            /* 4 */
-  UNIT_TYPE_QUOTE,            /* 5 */
-  UNIT_TYPE_CODE_BLOCK_START, /* 6 */
-  UNIT_TYPE_CODE_BLOCK_END,   /* 7 */
-  UNIT_TYPE_CODE_BLOCK_LINE,  /* 8 */
-  UNIT_TYPE_TEXT,             /* 9 */
-  UNIT_TYPE_NONE,             /* 10 */
+  UNIT_TYPE_QUOTE,            /* 4 */
+  UNIT_TYPE_CODE_BLOCK_START, /* 5 */
+  UNIT_TYPE_CODE_BLOCK_END,   /* 6 */
+  UNIT_TYPE_CODE_BLOCK_LINE,  /* 7 */
+  UNIT_TYPE_TEXT,             /* 8 */
+  UNIT_TYPE_NONE,             /* 9 */
 } UnitType;
 
 typedef struct MDUnit{

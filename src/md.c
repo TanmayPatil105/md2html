@@ -133,13 +133,6 @@ find_md_unit_type (char *line)
       return UNIT_TYPE_NONE;
     }
 
-  /* not a strict check */
-  if (line[0] &&
-      line[0] == '!')
-    {
-      return UNIT_TYPE_IMAGE;
-    }
-
   if (line[0] &&
       line[0] == '>' &&
       line[1] && line[1] == ' ')
@@ -238,9 +231,6 @@ find_md_content (char    *line,
       case UNIT_TYPE_QUOTE:
         line += 2;
         break;
-      case UNIT_TYPE_IMAGE:
-        line += 1;
-        break;
       case UNIT_TYPE_CODE_BLOCK_START:
         return NULL;
       case UNIT_TYPE_CODE_BLOCK_END:
@@ -250,31 +240,6 @@ find_md_content (char    *line,
     }
 
   return line;
-}
-
-/*
- * @example: content = [Alt text](/images/md.svg)
- */
-static char*
-find_image_uri (char *content)
-{
-  size_t len;
-  char *uri = NULL;
-
-  uri = strchr (content, '(') + 1;
-
-  len = strlen(uri);
-  uri[len - 1 ] = '\0';
-
-  return uri;
-}
-
-//FIXME: extract title
-static char*
-find_image_title (char *content)
-{
-  free (content);
-  return NULL;
 }
 
 static void
@@ -296,12 +261,6 @@ read_md_unit (char *line,
   /* make a copy */
   if (content = remove_trailing_new_line (find_md_content (line, type)))
     unit->content = strdup (content);
-
-  if (unit->type == UNIT_TYPE_IMAGE)
-    {
-      unit->uri = strdup (find_image_uri (unit->content));
-      unit->content = find_image_title (unit->content);
-    }
 
   /* Append to md->elements */
   if (next == NULL)
