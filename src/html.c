@@ -356,14 +356,23 @@ replace_bold_and_italics (char *content)
 
 static void
 flush_content (HTMLFile *file,
-               char     *content)
+               HTMLUnit *unit)
 {
-  char *replaced = NULL;
+  if (tags[unit->tag].start_tag)
+    fwrite (tags[unit->tag].start_tag, sizeof (char), strlen (tags[unit->tag].start_tag), file);
 
-  replaced = replace_bold_and_italics (content);
-  fwrite (replaced, sizeof (char), strlen (replaced), file);
+  if (unit->content)
+    {
+      char *replaced = NULL;
 
-  free (replaced);
+      replaced = replace_bold_and_italics (unit->content);
+      fwrite (replaced, sizeof (char), strlen (replaced), file);
+
+      free (replaced);
+    }
+
+  if (tags[unit->tag].end_tag)
+    fwrite (tags[unit->tag].end_tag, sizeof (char), strlen (tags[unit->tag].end_tag), file);
 }
 
 /*
@@ -403,14 +412,7 @@ flush_html (HTML *html)
       if (unit->tag == HTML_TAG_LI)
         INSERT_TABSPACE (file);
 
-      if (tags[unit->tag].start_tag)
-        fwrite (tags[unit->tag].start_tag, sizeof (char), strlen (tags[unit->tag].start_tag), file);
-
-      if (unit->content)
-        flush_content (file, unit->content);
-
-      if (tags[unit->tag].end_tag)
-        fwrite (tags[unit->tag].end_tag, sizeof (char), strlen (tags[unit->tag].end_tag), file);
+      flush_content (file, unit);
 
       if (!tag_is_heading (unit->tag) && !tag_is_code_block (unit->tag))
         INSERT_LINEBREAK (file);
