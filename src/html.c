@@ -342,6 +342,42 @@ replace_bold_and_italics (char *content)
               replaced[len] = '\0';
             }
         }
+      else if (*ptr == '!' && *(ptr + 1) == '[')
+        {
+          char *alt_start = ptr + 2;
+          char *alt_end = strstr (alt_start, "](");
+          char *src_start = alt_end + 2;
+          char *src_end = strchr (src_start, ')');
+
+          if (alt_end && src_start && src_end)
+            {
+              int tag_len = 19;
+              replaced = realloc (replaced, len + src_end - alt_start - 3 + tag_len + 2);
+              sprintf (replaced + len, "<img src=\"%.*s\" alt=\"%.*s\">",
+                                      (int) (src_end - src_start), src_start,
+                                      (int) (alt_end - alt_start), alt_start);
+              len += (src_end - alt_start - 3) + tag_len;
+              ptr = src_end + 1;
+            }
+        }
+      else if (*ptr == '[')
+        {
+          char *anc_start = ptr + 1;
+          char *anc_end = strstr (anc_start, "](");
+          char *href_start = anc_end + 2;
+          char *href_end = strchr (href_start, ')');
+
+          if (anc_end && href_start && href_end)
+            {
+              int tag_len = 15;
+              replaced = realloc (replaced, len + href_end - anc_start - 3 + tag_len + 2);
+              sprintf (replaced + len, "<a href=\"%.*s\">%.*s</a>",
+                                      (int) (href_end - href_start), href_start,
+                                      (int) (anc_end - anc_start), anc_start);
+              len += (href_end - anc_start - 3) + tag_len;
+              ptr = href_end + 1;
+            }
+        }
       else
         {
           replaced = realloc (replaced, len + 2);
