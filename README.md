@@ -3,15 +3,19 @@ A markdown parser that produces a equivalent HTML document.
 ### Support
 It currently supports following HTML tags:
 
-- `#`     ->  `<h1>`
-- `##`    ->  `<h2>`
-- `###`   ->  `<h3>`
-- `-`     ->  `<li>`
-- `![]()` ->  `<img>`
-- `>`     ->  `<blockquote>`
-- `* text *` -> `<b> text </b>`
-- `_ text _` -> `<i> text </i>`
-- `"```"` ->  `<pre>`
+Supports:
+
+| Markdown Syntax | HTML Equivalent |
+|-----------------|----------------|
+| `#`             | `<h1>`         |
+| `##`            | `<h2>`         |
+| `###`           | `<h3>`         |
+| `-`             | `<li>`         |
+| `![]()`         | `<img>`        |
+| `>`             | `<blockquote>` |
+| `** text **`    | `<b> text </b>`|
+| `* text *`      | `<i> text </i>`|
+| ` ``` int main (){} ``` ` | `<pre> int main (){} </pre>` |
 
 ## Formatting
 

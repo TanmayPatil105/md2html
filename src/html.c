@@ -294,16 +294,18 @@ replace_bold_and_italics (char *content)
 
   while (*ptr)
     {
-      if (*ptr == '*')
+      if (*ptr == '*' && *(ptr + 1) == '*' && *(ptr + 2) == '*')
         {
-          char *start = ptr + 1;
-          char *end = strchr (start, '*');
+          int offset = 3;
+          char *start = ptr + offset;
+          char *end = strstr (start, "***");
           if (end)
             {
-              replaced = realloc (replaced, len + end - start + 8);
-              sprintf (replaced + len, "<b>%.*s</b>", (int)(end - start), start);
-              len += end - start + 7;
-              ptr = end + 1;
+              int tag_len = 14; // <b><i></i></b>
+              replaced = realloc (replaced, len + end - start + tag_len + 1);
+              sprintf (replaced + len, "<b><i>%.*s</i></b>", (int)(end - start), start);
+              len += end - start + tag_len;
+              ptr = end + offset;
             }
           else
             {
@@ -312,16 +314,38 @@ replace_bold_and_italics (char *content)
               replaced[len] = '\0';
             }
         }
-      else if (*ptr == '_')
+      else if (*ptr == '*' && *(ptr + 1) == '*')
         {
-          char *start = ptr + 1;
-          char *end = strchr (start, '_');
+          int offset = 2;
+          char *start = ptr + offset;
+          char *end = strstr (start, "**");
           if (end)
             {
-              replaced = realloc (replaced, len + end - start + 8);
+              int tag_len = 7; // <b></b>
+              replaced = realloc (replaced, len + end - start + tag_len + 1);
+              sprintf (replaced + len, "<b>%.*s</b>", (int)(end - start), start);
+              len += end - start + tag_len;
+              ptr = end + offset;
+            }
+          else
+            {
+              replaced = realloc (replaced, len + 2);
+              replaced[len++] = *ptr++;
+              replaced[len] = '\0';
+            }
+        }
+      else if (*ptr == '*')
+        {
+          int offset = 1;
+          char *start = ptr + offset;
+          char *end = strchr (start, '*');
+          if (end)
+            {
+              int tag_len = 7; // <i></i>
+              replaced = realloc (replaced, len + end - start + tag_len + 1);
               sprintf (replaced + len, "<i>%.*s</i>", (int)(end - start), start);
-              len += end - start + 7;
-              ptr = end + 1;
+              len += end - start + tag_len;
+              ptr = end + offset;
             }
           else
             {

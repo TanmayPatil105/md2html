@@ -1,7 +1,13 @@
 # Bold and italics
 
-This is a *bold* text.
-This line *contains* multiple *bold* texts.
+This is a **bold** text.
+This line **contains** multiple **bold** texts.
 
-This is a _italic_ text.
-This line _contains_ multiple _italic_ texts.
+This is a *italic* text.
+This line *contains* multiple *italic* texts.
+
+This is not a bold text*
+
+This is ***bold and italic*** text.
+
+There are *different* **styles** in this ***text***.
