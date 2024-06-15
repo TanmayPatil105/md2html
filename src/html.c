@@ -399,12 +399,20 @@ flush_content (HTMLFile *file,
 
   if (unit->content)
     {
-      char *replaced = NULL;
+      if (unit->tag != HTML_TAG_CODE_BLOCK_LINE)
+        {
+          char *replaced = NULL;
 
-      replaced = replace_bold_and_italics (unit->content);
-      fwrite (replaced, sizeof (char), strlen (replaced), file);
+          replaced = replace_bold_and_italics (unit->content);
+          fwrite (replaced, sizeof (char), strlen (replaced), file);
 
-      free (replaced);
+          free (replaced);
+        }
+      else
+        {
+          fwrite (unit->content, sizeof (char), strlen (unit->content), file);
+        }
+
     }
 
   if (tags[unit->tag].end_tag)
