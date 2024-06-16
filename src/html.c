@@ -294,12 +294,8 @@ replace_bold_and_italics (char *content)
               sprintf (replaced + len, "<b><i>%.*s</i></b>", (int)(end - start), start);
               len += end - start + tag_len;
               ptr = end + offset;
-            }
-          else
-            {
-              replaced = realloc (replaced, len + 2);
-              replaced[len++] = *ptr++;
-              replaced[len] = '\0';
+
+              continue;
             }
         }
       else if (*ptr == '*' && *(ptr + 1) == '*')
@@ -314,12 +310,8 @@ replace_bold_and_italics (char *content)
               sprintf (replaced + len, "<b>%.*s</b>", (int)(end - start), start);
               len += end - start + tag_len;
               ptr = end + offset;
-            }
-          else
-            {
-              replaced = realloc (replaced, len + 2);
-              replaced[len++] = *ptr++;
-              replaced[len] = '\0';
+
+              continue;
             }
         }
       else if (*ptr == '*')
@@ -334,12 +326,8 @@ replace_bold_and_italics (char *content)
               sprintf (replaced + len, "<i>%.*s</i>", (int)(end - start), start);
               len += end - start + tag_len;
               ptr = end + offset;
-            }
-          else
-            {
-              replaced = realloc (replaced, len + 2);
-              replaced[len++] = *ptr++;
-              replaced[len] = '\0';
+
+              continue;
             }
         }
       else if (*ptr == '!' && *(ptr + 1) == '[')
@@ -358,6 +346,8 @@ replace_bold_and_italics (char *content)
                                       (int) (alt_end - alt_start), alt_start);
               len += (src_end - alt_start - 3) + tag_len;
               ptr = src_end + 1;
+
+              continue;
             }
         }
       else if (*ptr == '[')
@@ -376,14 +366,15 @@ replace_bold_and_italics (char *content)
                                       (int) (anc_end - anc_start), anc_start);
               len += (href_end - anc_start - 3) + tag_len;
               ptr = href_end + 1;
+
+              continue;
             }
         }
-      else
-        {
-          replaced = realloc (replaced, len + 2);
-          replaced[len++] = *ptr++;
-          replaced[len] = '\0';
-        }
+
+      /* move forward */
+      replaced = realloc (replaced, len + 2);
+      replaced[len++] = *ptr++;
+      replaced[len] = '\0';
     }
 
   /* give ownership */
