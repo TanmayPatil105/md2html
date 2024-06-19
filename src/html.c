@@ -451,8 +451,16 @@ post_format (HTMLFile *file,
 
   unit = html->html[index];
 
-  if (!tag_is_heading (unit->tag) &&
-      !tag_is_code_block (unit->tag))
+  /*
+   * Do not add <br>
+   *  1. after a heading
+   *  2. inside a code block
+   *  3. if previous element was a heading
+   *
+   */
+  if (!(tag_is_heading (unit->tag)  ||
+        tag_is_code_block (unit->tag) ||
+        ((index != 0) && tag_is_heading (html->html[index - 1]->tag))))
     INSERT_LINEBREAK (file);
 
   if (unit->tag == HTML_TAG_LI &&
