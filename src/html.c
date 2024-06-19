@@ -418,6 +418,50 @@ flush_content (HTMLFile *file,
     fwrite (tags[unit->tag].end_tag, sizeof (char), strlen (tags[unit->tag].end_tag), file);
 }
 
+static void
+pre_format (HTMLFile *file,
+            HTML     *html,
+            int       index)
+{
+  HTMLUnit *unit = NULL;
+
+  unit = html->html[index];
+
+  INSERT_NEWLINE (file);
+
+  if (unit->tag == HTML_TAG_LI &&
+      (index == 0 || html->html[index - 1]->tag != HTML_TAG_LI))
+    {
+      UL_TOP_LEVEL_START (file);
+    }
+
+  if (unit->tag != HTML_TAG_CODE_BLOCK_LINE)
+    INSERT_TABSPACE (file);
+
+  if (unit->tag == HTML_TAG_LI)
+    INSERT_TABSPACE (file);
+}
+
+static void
+post_format (HTMLFile *file,
+             HTML     *html,
+             int       index)
+{
+  HTMLUnit *unit = NULL;
+
+  unit = html->html[index];
+
+  if (!tag_is_heading (unit->tag) &&
+      !tag_is_code_block (unit->tag))
+    INSERT_LINEBREAK (file);
+
+  if (unit->tag == HTML_TAG_LI &&
+      (index == html->n_lines - 1 || html->html[index + 1]->tag != HTML_TAG_LI))
+    {
+      UL_TOP_LEVEL_END (file);
+    }
+}
+
 /*
  * flush_html
  * @html: HTML doc
@@ -439,33 +483,11 @@ flush_html (HTML *html)
 
       unit = html->html[i];
 
-      /* print NEWLINE for formatting */
-      INSERT_NEWLINE (file);
-
-      if (unit->tag == HTML_TAG_LI &&
-          (i == 0 ||
-           html->html[i-1]->tag != HTML_TAG_LI))
-        {
-          UL_TOP_LEVEL_START (file);
-        }
-
-      if (unit->tag != HTML_TAG_CODE_BLOCK_LINE)
-        INSERT_TABSPACE (file);
-
-      if (unit->tag == HTML_TAG_LI)
-        INSERT_TABSPACE (file);
+      pre_format (file, html, i);
 
       flush_content (file, unit);
 
-      if (!tag_is_heading (unit->tag) && !tag_is_code_block (unit->tag))
-        INSERT_LINEBREAK (file);
-
-      if (unit->tag == HTML_TAG_LI &&
-          (i == html->n_lines - 1 ||
-           html->html[i+1]->tag != HTML_TAG_LI))
-        {
-          UL_TOP_LEVEL_END (file);
-        }
+      post_format (file, html, i);
     }
 
   final_template (file);
