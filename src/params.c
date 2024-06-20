@@ -30,6 +30,7 @@ params_init (Params **params)
 {
   *params = (Params*) malloc (sizeof(Params));
 
+  (*params)->version = false;
   (*params)->help = false;
   (*params)->error = NULL;
 }
@@ -45,6 +46,7 @@ params_parse (int   argc,
   bool inline_css = false;
   char *i_css_file = NULL;
   bool help = false;
+  bool version = false;
   char error[1000] = {};
 
   params_init (&params);
@@ -55,6 +57,13 @@ params_parse (int   argc,
           (strcmp (argv[i], "--help") == 0))
         {
           help = true;
+          break;
+        }
+
+      if ((strcmp (argv[i], "-v") == 0) ||
+          (strcmp (argv[i], "--version") == 0))
+        {
+          version = true;
           break;
         }
 
@@ -111,7 +120,7 @@ params_parse (int   argc,
         }
     }
 
-  if (help == false && i_file == NULL)
+  if (help == false && version == false && i_file == NULL)
     sprintf (error, "missing input file");
 
   if (error[0] == '\0')
@@ -121,6 +130,7 @@ params_parse (int   argc,
       params->title = title;
       params->inline_css = inline_css;
       params->i_css_file = i_css_file;
+      params->version = version;
       params->help = help;
     }
   else

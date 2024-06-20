@@ -25,7 +25,15 @@
 #include "html.h"
 
 
-void
+#define VERSION "0.1.0"
+
+static void
+print_version (char *binary)
+{
+  printf ("%s %s\n", binary, VERSION);
+}
+
+static void
 print_usage (char *binary)
 {
   printf("Usage: %s -i MD_FILE\n"
@@ -37,7 +45,8 @@ print_usage (char *binary)
   "Optional arguments:\n"
   "  -o, --output               name of output HTML doc\n"
   "  -t, --title                title of output HTML doc\n"
-  "  -h, --help                 display this message\n", binary);
+  "  -h, --help                 display this message\n"
+  "  -v, --version              output version information\n", binary);
 }
 
 int
@@ -61,6 +70,12 @@ main (int   argc,
   if (params->help)
     {
       print_usage (argv[0]);
+      return 0;
+    }
+
+  if (params->version)
+    {
+      print_version (argv[0]);
       return 0;
     }
 
