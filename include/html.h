@@ -53,6 +53,9 @@ typedef struct HTML {
   char *file_name;
   char *title;
 
+  /* options */
+  bool document;
+
   /* content */
   uint n_lines;
   HTMLUnit **html;

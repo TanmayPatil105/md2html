@@ -30,6 +30,7 @@ params_init (Params **params)
 {
   *params = (Params*) malloc (sizeof(Params));
 
+  (*params)->document = true;
   (*params)->version = false;
   (*params)->help = false;
   (*params)->error = NULL;
@@ -45,6 +46,7 @@ params_parse (int   argc,
   char *title = NULL;
   bool inline_css = false;
   char *i_css_file = NULL;
+  bool document = true;
   bool help = false;
   bool version = false;
   char error[1000] = {};
@@ -59,16 +61,14 @@ params_parse (int   argc,
           help = true;
           break;
         }
-
-      if ((strcmp (argv[i], "-v") == 0) ||
-          (strcmp (argv[i], "--version") == 0))
+       else if ((strcmp (argv[i], "-v") == 0) ||
+                (strcmp (argv[i], "--version") == 0))
         {
           version = true;
           break;
         }
-
-      if ((strcmp (argv[i], "-i") == 0) ||
-          (strcmp (argv[i], "--input") == 0))
+      else if ((strcmp (argv[i], "-i") == 0) ||
+               (strcmp (argv[i], "--input") == 0))
         {
           if (argv[i + 1] != NULL)
             {
@@ -80,9 +80,8 @@ params_parse (int   argc,
               break;
             }
         }
-
-      if ((strcmp (argv[i], "-o") == 0) ||
-          (strcmp (argv[i], "--output") == 0))
+      else if ((strcmp (argv[i], "-o") == 0) ||
+               (strcmp (argv[i], "--output") == 0))
         {
           if (argv[i + 1] != NULL)
             {
@@ -94,9 +93,8 @@ params_parse (int   argc,
               break;
             }
         }
-
-      if ((strcmp (argv[i], "-t") == 0) ||
-          (strcmp (argv[i], "--title") == 0))
+      else if ((strcmp (argv[i], "-t") == 0) ||
+               (strcmp (argv[i], "--title") == 0))
         {
           if (argv[i + 1] != NULL)
             {
@@ -108,8 +106,12 @@ params_parse (int   argc,
               break;
             }
         }
-
-      if (strcmp (argv[i], "--css") == 0)
+      else if ((strcmp (argv[i], "-d") == 0) ||
+               (strcmp (argv[i], "--disable-document") == 0))
+        {
+          document = false;
+        }
+      else if (strcmp (argv[i], "--css") == 0)
         {
           inline_css = true;
 
@@ -130,6 +132,7 @@ params_parse (int   argc,
       params->title = title;
       params->inline_css = inline_css;
       params->i_css_file = i_css_file;
+      params->document = document;
       params->version = version;
       params->help = help;
     }

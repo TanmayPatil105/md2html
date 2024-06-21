@@ -74,6 +74,8 @@ html_init (HTML **html,
 
   (*html)->file_name = strdup (__DEFAULT_HTML_FILE_NAME__);
   (*html)->title = NULL;
+
+  (*html)->document = true;
   (*html)->n_lines = n_lines;
   (*html)->html = malloc (n_lines * sizeof (HTMLUnit));
 }
@@ -164,7 +166,7 @@ init_template (HTMLFile *file,
     "\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
     "\t<title>%s</title>\n"
     "</head>\n"
-    "<body>", html->title);
+    "<body>\n", html->title);
 
   /* inject init template HTML */
   fprintf (file, "%s", template);
@@ -176,7 +178,7 @@ final_template (HTMLFile *file)
   char template[20];
 
   sprintf (template,
-    "\n</body>\n"
+    "</body>\n"
     "</html>\n");
 
   /* inject final template HTML */
@@ -200,6 +202,8 @@ html_from_md (MD     *md,
   HTML *html = NULL;
 
   html_init (&html, md->n_lines);
+
+  html->document = params->document;
 
   /* custom file_name */
   if (params->o_file != NULL)
@@ -427,15 +431,13 @@ pre_format (HTMLFile *file,
 
   unit = html->html[index];
 
-  INSERT_NEWLINE (file);
-
   if (unit->tag == HTML_TAG_LI &&
       (index == 0 || html->html[index - 1]->tag != HTML_TAG_LI))
     {
       UL_TOP_LEVEL_START (file);
     }
 
-  if (!tag_is_code_block (unit->tag))
+  if (html->document && !tag_is_code_block (unit->tag))
     INSERT_TABSPACE (file);
 
   if (unit->tag == HTML_TAG_LI)
@@ -468,6 +470,8 @@ post_format (HTMLFile *file,
     {
       UL_TOP_LEVEL_END (file);
     }
+
+  INSERT_NEWLINE (file);
 }
 
 /*
@@ -483,7 +487,8 @@ flush_html (HTML *html)
 
   file = fopen (html->file_name, "w+");
 
-  init_template (file, html);
+  if (html->document)
+    init_template (file, html);
 
   for (uint i = 0; i < html->n_lines; i++)
     {
@@ -498,7 +503,8 @@ flush_html (HTML *html)
       post_format (file, html, i);
     }
 
-  final_template (file);
+  if (html->document)
+    final_template (file);
 
   fclose (file);
 }
