@@ -1,4 +1,4 @@
-/* html.h
+/* lang.h
  *
  * Copyright 2024 Tanmay Patil <tanmaynpatil105@gmail.com>
  *
@@ -21,53 +21,11 @@
 
 #pragma once
 
-#include <stdio.h>
-#include "params.h"
-#include "md.h"
-#include "lang.h"
-
 /*
- * @HTMLFile
+ * Programming languages supported
  */
-typedef FILE HTMLFile;
-
-typedef enum {
-  HTML_TAG_H1,
-  HTML_TAG_H2,
-  HTML_TAG_H3,
-  HTML_TAG_LI,
-  HTML_TAG_BLOCKQUOTE,
-  HTML_TAG_CODE_BLOCK_START,
-  HTML_TAG_CODE_BLOCK_END,
-  HTML_TAG_CODE_BLOCK_LINE,
-  HTML_TAG_NONE,
-  HTML_TAG_NEWLINE,
-} HTMLTag;
-
-typedef struct HTMLUnit {
-  HTMLTag tag;
-  char *content;
-  char *uri;
-
-  /* For codeblocks */
-  Lang lang;
-
-} HTMLUnit;
-
-typedef struct HTML {
-  char *file_name;
-  char *title;
-
-  /* options */
-  bool document;
-
-  /* content */
-  uint n_lines;
-  HTMLUnit **html;
-} HTML;
-
-
-HTML *html_from_md (MD     *md,
-                    Params *params);
-void  html_free    (HTML *html);
-void  flush_html   (HTML *html);
+typedef enum
+{
+  LANG_C,        /* C programming language */
+  LANG_NONE,
+} Lang;

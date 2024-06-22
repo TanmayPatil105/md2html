@@ -112,6 +112,7 @@ md_unit_init (MDUnit **unit)
   (*unit)->type = UNIT_TYPE_NONE;
   (*unit)->content = NULL;
   (*unit)->uri = NULL;
+  (*unit)->lang = LANG_NONE;
   (*unit)->next = NULL;
 }
 
@@ -242,6 +243,20 @@ find_md_content (char    *line,
   return line;
 }
 
+static Lang
+find_code_block_lang (char *line)
+{
+  char *lang = NULL;
+
+  /* We already know it's a codeblock start */
+  lang = line + 3;
+
+  if (strcmp (lang, "c") == 0)
+    return LANG_C;
+
+  return LANG_NONE;
+}
+
 static void
 read_md_unit (char *line,
               MD   *md)
@@ -261,6 +276,9 @@ read_md_unit (char *line,
   /* make a copy */
   if (content = remove_trailing_new_line (find_md_content (line, type)))
     unit->content = strdup (content);
+
+  if (type == UNIT_TYPE_CODE_BLOCK_START)
+    unit->lang = find_code_block_lang (line);
 
   /* Append to md->elements */
   if (next == NULL)

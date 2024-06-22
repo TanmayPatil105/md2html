@@ -22,6 +22,7 @@
 #pragma once
 
 #include <stdio.h>
+#include "lang.h"
 
 typedef unsigned int uint;
 
@@ -47,6 +48,10 @@ typedef struct MDUnit{
   UnitType type;
   char *content;
   char *uri;
+
+  /* For codeblocks */
+  Lang lang;
+
   struct MDUnit *next;
 } MDUnit;
 
