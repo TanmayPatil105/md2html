@@ -49,6 +49,8 @@ static html_tags tags[] = {
   {HTML_TAG_CODE_BLOCK_START, "<pre><code>", NULL},
   {HTML_TAG_CODE_BLOCK_END, NULL, "</code></pre>"},
   {HTML_TAG_CODE_BLOCK_LINE, NULL, NULL},
+
+  /* FIXME: Treat as <p> */
   {HTML_TAG_NONE, NULL, NULL},
   {HTML_TAG_NEWLINE, NULL, NULL},
 };

@@ -11,7 +11,9 @@ for md in "$TESTS_FILE_DIR"/*; do
 	md2html -i $md -o global.html
   ./build/src/md2html -i $md -o local.html
 
-	diff -c global.html local.html > /dev/null 2>&1
+	diff -c global.html local.html
+
+	rm -f global.html local.html
 	if [ $? -eq 1 ]; then
 		failed=1
 	fi
