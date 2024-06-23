@@ -121,7 +121,7 @@ find_html_tag (UnitType type)
  */
 static void
 html_unit_init (HTMLUnit **unit,
-                MDUnit    *md_unit)
+                MDUnit   **md_unit)
 {
   *unit = (HTMLUnit *) malloc (sizeof (HTMLUnit));
   memset(*unit, 0, sizeof(HTMLUnit));
@@ -133,11 +133,14 @@ html_unit_init (HTMLUnit **unit,
       return;
     }
 
-  (*unit)->tag = find_html_tag (md_unit->type);
-  if (md_unit->content != NULL)
-    (*unit)->content = strdup (md_unit->content);
-  (*unit)->uri = md_unit->uri;
-  (*unit)->lang = md_unit->lang;
+  (*unit)->tag = find_html_tag ((*md_unit)->type);
+  if ((*md_unit)->content != NULL)
+    (*unit)->content = strdup ((*md_unit)->content);
+  (*unit)->uri = (*md_unit)->uri;
+  (*unit)->lang = (*md_unit)->lang;
+
+  /* move forward */
+  *md_unit = (*md_unit)->next;
 }
 
 /*
@@ -220,10 +223,9 @@ html_from_md (MD     *md,
     {
       HTMLUnit *html_unit = NULL;
 
-      html_unit_init (&html_unit, unit);
+      html_unit_init (&html_unit, &unit);
 
       html->html[i++] = html_unit;
-      unit = unit->next;
     }
 
   return html;
