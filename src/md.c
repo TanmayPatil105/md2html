@@ -257,17 +257,15 @@ find_code_block_lang (char *line)
   return LANG_NONE;
 }
 
-static void
+static MDUnit *
 read_md_unit (char *line,
               MD   *md)
 {
   MDUnit *unit = NULL;
-  MDUnit *next = NULL;
   UnitType type;
   char *content = NULL;
 
   md_unit_init (&unit);
-  next = md->elements;
 
   type = find_md_unit_type (line);
   prev_md_unit = type;
@@ -280,19 +278,7 @@ read_md_unit (char *line,
   if (type == UNIT_TYPE_CODE_BLOCK_START)
     unit->lang = find_code_block_lang (line);
 
-  /* Append to md->elements */
-  if (next == NULL)
-    {
-      md->elements = unit;
-    }
-  else
-    {
-      while (next->next)
-        {
-          next = next->next;
-        }
-      next->next = unit;
-    }
+  return unit;
 }
 
 /*
@@ -313,16 +299,30 @@ parse_md (MDFile *file)
   size_t len = 0;
   size_t read;
   MD *md = NULL;
+  MDUnit *unit = NULL;
+  MDUnit *next = NULL;
 
   return_val_if_null (file);
 
-  /* parse here */
   md_init (&md);
 
   /* read file line by line */
   while ((read = getline (&line, &len, file) != -1))
     {
-      read_md_unit (line, md);
+      unit = read_md_unit (line, md);
+
+      /* Append to md->elements */
+      if (next == NULL)
+        {
+          md->elements = unit;
+          next = unit;
+        }
+      else
+        {
+          next->next = unit;
+          next = unit;
+        }
+
       n_lines++;
     }
 
