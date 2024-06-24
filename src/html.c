@@ -356,7 +356,7 @@ replace_bold_and_italics (char *content)
                   sprintf (replaced + len, "<img src=\"%.*s\" alt=\"%.*s\">",
                                           (int) (src_end - src_start), src_start,
                                           (int) (alt_end - alt_start), alt_start);
-                  len += (src_end - alt_start - 3) + tag_len;
+                  len += (src_end - alt_start - 2) + tag_len;
                   ptr = src_end + 1;
 
                   continue;
@@ -380,7 +380,7 @@ replace_bold_and_italics (char *content)
                   sprintf (replaced + len, "<a href=\"%.*s\">%.*s</a>",
                                           (int) (href_end - href_start), href_start,
                                           (int) (anc_end - anc_start), anc_start);
-                  len += (href_end - anc_start - 3) + tag_len;
+                  len += (href_end - anc_start - 2) + tag_len;
                   ptr = href_end + 1;
 
                   continue;
