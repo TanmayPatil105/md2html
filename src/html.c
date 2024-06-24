@@ -46,8 +46,8 @@ static html_tags tags[] = {
   {HTML_TAG_H3, "<h3>", "</h3>"},
   {HTML_TAG_LI, "<li>", "</li>"},
   {HTML_TAG_BLOCKQUOTE, "<blockquote><q>", "</q></blockquote>"},
-  {HTML_TAG_CODE_BLOCK_START, "<pre><code>", NULL},
-  {HTML_TAG_CODE_BLOCK_END, NULL, "</code></pre>"},
+  {HTML_TAG_CODE_BLOCK_START, "<pre>\n<code>", NULL},
+  {HTML_TAG_CODE_BLOCK_END, NULL, "</code>\n</pre>"},
   {HTML_TAG_CODE_BLOCK_LINE, NULL, NULL},
 
   /* FIXME: Treat as <p> */
@@ -467,7 +467,7 @@ post_format (HTMLFile *file,
    */
   if (!(tag_is_heading (unit->tag)  ||
         tag_is_code_block (unit->tag) ||
-        ((index != 0) && tag_is_heading (html->html[index - 1]->tag))))
+        ((index != 0) && unit->tag == HTML_TAG_NEWLINE && tag_is_heading (html->html[index - 1]->tag))))
     INSERT_LINEBREAK (file);
 
   if (unit->tag == HTML_TAG_LI &&

@@ -2,7 +2,9 @@
 content 1
 
 ## Heading 2
-content 2
+
+newline after Heading
 
 ### Heading 3
-content 3
+no newline after content
+next line
