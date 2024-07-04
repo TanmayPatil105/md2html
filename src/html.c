@@ -279,7 +279,7 @@ tag_is_code_block (HTMLTag tag)
 }
 
 static char *
-replace_bold_and_italics (char *content)
+format_text (char *content)
 {
   char *replaced = NULL;
   char *ptr = NULL;
@@ -411,7 +411,7 @@ flush_content (HTMLFile *file,
         {
           char *replaced = NULL;
 
-          replaced = replace_bold_and_italics (unit->content);
+          replaced = format_text (unit->content);
           fwrite (replaced, sizeof (char), strlen (replaced), file);
 
           free (replaced);
