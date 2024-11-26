@@ -58,6 +58,9 @@ typedef struct HTML {
   char *file_name;
   char *title;
 
+  /* css stylesheet */
+  char *stylesheet;
+
   /* options */
   bool document;
 

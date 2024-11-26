@@ -46,6 +46,7 @@ print_usage (char *binary)
   "  -o, --output               name of output HTML doc\n"
   "  -t, --title                title of output HTML doc\n"
   "  -d, --disable-document     disable injecting HTML document template code\n"
+  "  -s, --stylesheet           include css file\n"
   "  -h, --help                 display this message\n"
   "  -v, --version              output version information\n", binary);
 }

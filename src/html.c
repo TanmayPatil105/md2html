@@ -77,6 +77,7 @@ html_init (HTML **html,
   (*html)->file_name = strdup (__DEFAULT_HTML_FILE_NAME__);
   (*html)->title = NULL;
 
+  (*html)->stylesheet = NULL;
   (*html)->document = true;
   (*html)->n_lines = n_lines;
   (*html)->html = malloc (n_lines * sizeof (HTMLUnit));
@@ -155,6 +156,7 @@ init_template (HTMLFile *file,
 {
   HTMLUnit *unit = NULL;
   char template[1000];
+  int len = 0;
 
   if (html->title == NULL)
     {
@@ -164,12 +166,21 @@ init_template (HTMLFile *file,
         html->title = strdup (__DEFAULT_HTML_TITLE__);
     }
 
-  sprintf (template,
+  len = sprintf (template,
     "<!DOCTYPE html>\n"
     "<html lang=\"en\">\n"
     "<head>\n"
     "\t<meta charset=\"UTF-8\">\n"
-    "\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
+    "\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n");
+
+  if (html->stylesheet)
+    {
+      len += sprintf (template + len,
+                     "\t<link rel=\"stylesheet\" href=\"%s\">\n",
+                     html->stylesheet);
+    }
+
+  sprintf (template + len,
     "\t<title>%s</title>\n"
     "</head>\n"
     "<body>\n", html->title);
@@ -208,6 +219,10 @@ html_from_md (MD     *md,
   HTML *html = NULL;
 
   html_init (&html, md->n_lines);
+
+  /* css */
+  if (params->css_file)
+    html->stylesheet = strdup (params->css_file);
 
   html->document = params->document;
 

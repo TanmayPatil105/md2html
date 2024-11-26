@@ -44,8 +44,7 @@ params_parse (int   argc,
   char *i_file = NULL;
   char *o_file = NULL;
   char *title = NULL;
-  bool inline_css = false;
-  char *i_css_file = NULL;
+  char *css_file = NULL;
   bool document = true;
   bool help = false;
   bool version = false;
@@ -111,13 +110,12 @@ params_parse (int   argc,
         {
           document = false;
         }
-      else if (strcmp (argv[i], "--css") == 0)
+      else if ((strcmp (argv[i], "-s") == 0) ||
+               (strcmp (argv[i], "--stylesheet") == 0))
         {
-          inline_css = true;
-
           if (argv[i + 1] != NULL)
             {
-              i_css_file = strdup (argv[++i]);
+              css_file = strdup (argv[++i]);
             }
         }
     }
@@ -130,8 +128,7 @@ params_parse (int   argc,
       params->i_file = i_file;
       params->o_file = o_file;
       params->title = title;
-      params->inline_css = inline_css;
-      params->i_css_file = i_css_file;
+      params->css_file = css_file;
       params->document = document;
       params->version = version;
       params->help = help;
@@ -152,8 +149,8 @@ void params_free (Params *params)
     free (params->o_file);
   if (params->title != NULL)
     free (params->title);
-  if (params->i_css_file != NULL)
-    free (params->i_css_file);
+  if (params->css_file != NULL)
+    free (params->css_file);
   if (params->error != NULL)
     free (params->error);
 

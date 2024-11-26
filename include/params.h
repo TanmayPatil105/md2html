@@ -30,8 +30,7 @@ typedef struct Params {
   char *o_file;      /* output HTML file; defaults to index.html */
   char *title;       /* HTML doc title */
 
-  bool  inline_css;  /* add inline css */
-  char *i_css_file;  /* set inline css equal to contents of .css file */
+  char *css_file;  /* set inline css equal to contents of .css file */
 
   bool document;     /* adds HTML document template code; defaults to true */
 
