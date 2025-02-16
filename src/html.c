@@ -55,6 +55,8 @@ static html_tags tags[] = {
   {HTML_TAG_NEWLINE, NULL, NULL},
 };
 
+static Lang curr_lang = LANG_NONE;
+
 /*
  * html_init
  * @html
@@ -422,7 +424,19 @@ flush_content (HTMLFile *file,
 
   if (unit->content)
     {
-      if (unit->tag != HTML_TAG_CODE_BLOCK_LINE)
+      if (unit->tag == HTML_TAG_CODE_BLOCK_START)
+        {
+          curr_lang = unit->lang;
+        }
+      else if (unit->tag == HTML_TAG_CODE_BLOCK_END)
+        {
+          curr_lang = LANG_NONE;
+        }
+      else if (unit->tag == HTML_TAG_CODE_BLOCK_LINE)
+        {
+          fwrite (unit->content, sizeof (char), strlen (unit->content), file);
+        }
+      else
         {
           char *replaced = NULL;
 
@@ -431,11 +445,6 @@ flush_content (HTMLFile *file,
 
           free (replaced);
         }
-      else
-        {
-          fwrite (unit->content, sizeof (char), strlen (unit->content), file);
-        }
-
     }
 
   if (tags[unit->tag].end_tag)

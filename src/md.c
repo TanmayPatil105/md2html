@@ -251,7 +251,7 @@ find_code_block_lang (char *line)
   /* We already know it's a codeblock start */
   lang = line + 3;
 
-  if (strcmp (lang, "c") == 0)
+  if (strncmp (lang, "c", 1) == 0)
     return LANG_C;
 
   return LANG_NONE;

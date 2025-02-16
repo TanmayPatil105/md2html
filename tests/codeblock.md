@@ -1,7 +1,7 @@
 # Hello world!
 
 ### C
-```
+```c
 #include <stdio.h>
 
 int main() {
@@ -10,6 +10,6 @@ int main() {
 }
 ```
 ### Python
-```
+```python
 print ("Hello, World!\n")
 ```
