@@ -27,6 +27,13 @@
 #include "syntax.h"
 
 /*
+ * utility macros
+ */
+
+#define FWRITE_STR(str, file) \
+        fwrite (str, sizeof (char), strlen (str), file);
+
+/*
  * @default HTML values
  */
 #define __DEFAULT_HTML_FILE_NAME__ "index.html"
@@ -427,7 +434,7 @@ syntax_highlight_block (char     *codeblk,
 
   if (highlighted != NULL)
     {
-      fwrite (highlighted, sizeof (char), strlen (highlighted), file);
+      FWRITE_STR (highlighted, file);
       free (highlighted);
     }
 }
@@ -437,7 +444,7 @@ flush_content (HTMLFile *file,
                HTMLUnit *unit)
 {
   if (tags[unit->tag].start_tag)
-    fwrite (tags[unit->tag].start_tag, sizeof (char), strlen (tags[unit->tag].start_tag), file);
+    FWRITE_STR (tags[unit->tag].start_tag, file);
 
   if (unit->tag == HTML_TAG_CODE_BLOCK_START)
     {
@@ -454,7 +461,7 @@ flush_content (HTMLFile *file,
         {
           if (curr_lang == LANG_NONE)
             {
-              fwrite (unit->content, sizeof (char), strlen (unit->content), file);
+              FWRITE_STR (unit->content, file);
             }
           else
             {
@@ -466,14 +473,14 @@ flush_content (HTMLFile *file,
           char *replaced = NULL;
 
           replaced = format_text (unit->content);
-          fwrite (replaced, sizeof (char), strlen (replaced), file);
+          FWRITE_STR (replaced, file);
 
           free (replaced);
         }
     }
 
   if (tags[unit->tag].end_tag)
-    fwrite (tags[unit->tag].end_tag, sizeof (char), strlen (tags[unit->tag].end_tag), file);
+    FWRITE_STR (tags[unit->tag].end_tag, file);
 }
 
 static void
