@@ -24,6 +24,7 @@
 #include <stdbool.h>
 #include "html.h"
 #include "macro.h"
+#include "syntax.h"
 
 /*
  * @default HTML values
@@ -416,25 +417,49 @@ format_text (char *content)
 }
 
 static void
+syntax_highlight_block (char     *codeblk,
+                        Lang      lang,
+                        HTMLFile *file)
+{
+  char *highlighted = NULL;
+
+  highlighted = syntax_highlight (codeblk, lang);
+
+  if (highlighted != NULL)
+    {
+      fwrite (highlighted, sizeof (char), strlen (highlighted), file);
+      free (highlighted);
+    }
+}
+
+static void
 flush_content (HTMLFile *file,
                HTMLUnit *unit)
 {
   if (tags[unit->tag].start_tag)
     fwrite (tags[unit->tag].start_tag, sizeof (char), strlen (tags[unit->tag].start_tag), file);
 
+  if (unit->tag == HTML_TAG_CODE_BLOCK_START)
+    {
+      curr_lang = unit->lang;
+    }
+  else if (unit->tag == HTML_TAG_CODE_BLOCK_END)
+    {
+      curr_lang = LANG_NONE;
+    }
+
   if (unit->content)
     {
-      if (unit->tag == HTML_TAG_CODE_BLOCK_START)
+      if (unit->tag == HTML_TAG_CODE_BLOCK_LINE)
         {
-          curr_lang = unit->lang;
-        }
-      else if (unit->tag == HTML_TAG_CODE_BLOCK_END)
-        {
-          curr_lang = LANG_NONE;
-        }
-      else if (unit->tag == HTML_TAG_CODE_BLOCK_LINE)
-        {
-          fwrite (unit->content, sizeof (char), strlen (unit->content), file);
+          if (curr_lang == LANG_NONE)
+            {
+              fwrite (unit->content, sizeof (char), strlen (unit->content), file);
+            }
+          else
+            {
+              syntax_highlight_block (unit->content, curr_lang, file);
+            }
         }
       else
         {

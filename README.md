@@ -18,6 +18,12 @@ Supports:
 | `* text *`      | `<i> text </i>`|
 | ` ``` int main (){} ``` ` | `<pre> int main (){} </pre>` |
 
+### Syntax highlighting
+
+Languages supported:
+- C
+
+
 ## Formatting
 
 While flushing the output, it takes care of formatting the HTML.

@@ -3,6 +3,7 @@ set(SOURCES
 		params.c
 		md.c
 		html.c
+		syntax.c
 )
 
 set (CMAKE_C_COMPILER gcc)
