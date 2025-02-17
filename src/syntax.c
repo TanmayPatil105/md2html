@@ -38,6 +38,11 @@
  * Eg. #C061CB */
 #define MAX_ELEMENT_RGB_COLOR  8
 
+/*
+ * Utility macros
+ */
+#define ARRAY_SIZE(arr) \
+        sizeof (arr) / sizeof (arr[0])
 
 /* Keywords */
 
@@ -82,11 +87,34 @@ get_char_index (char c)
 /**
  * C programming language
  **/
-#define N_C_KEYWORDS 2
-
-static struct keyword c_keywords[N_C_KEYWORDS] = {
-  { "#include", "#5FD7FF" },
-  { "return",  "#E9AD0C" }
+static struct keyword c_keywords[] = {
+  { "#include",   "#E91E63" },
+  { "#define ",   "#E91E63" },
+  { "for ",       "#D84315" },
+  { "while ",     "#D84315" },
+  { "do ",        "#D84315" },
+  { "break",      "#D84315" },
+  { "if ",        "#D84315" },
+  { "else ",      "#D84315" },
+  { "switch ",    "#D84315" },
+  { "continue",   "#D84315" },
+  { "return ",    "#D84315" },
+  { "int ",       "#6A1B9A" },
+  { "char ",      "#6A1B9A" },
+  { "float ",     "#6A1B9A" },
+  { "double ",    "#6A1B9A" },
+  { "long ",      "#6A1B9A" },
+  { "short ",     "#6A1B9A" },
+  { "unsigned ",  "#6A1B9A" },
+  { "signed ",    "#6A1B9A" },
+  { "void ",      "#6A1B9A" },
+  { "static ",    "#6A1B9A" },
+  { "struct ",    "#1565C0" },
+  { "union ",     "#1565C0" },
+  { "enum ",      "#1565C0" },
+  { "sizeof",     "#D84315" },
+  { "typedef ",   "#D84315" },
+  { "enum ",      "#D84315" },
 };
 
 
@@ -187,12 +215,14 @@ syntax_highlight (char *codeblk,
                   Lang  lang)
 {
   char *highlighted = NULL;
+  int n_keywords;
 
   switch (lang)
     {
       case LANG_C:
+        n_keywords = ARRAY_SIZE (c_keywords);
         highlighted = highlight_keywords (codeblk,
-                                          c_keywords, N_C_KEYWORDS);
+                                          c_keywords, n_keywords);
         break;
       default:
         highlighted = NULL;
