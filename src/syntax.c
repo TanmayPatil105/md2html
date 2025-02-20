@@ -47,8 +47,8 @@
 /* Keywords */
 
 struct keyword {
-  char str[MAX_KEYWORD_STR_SIZE];
-  char color[MAX_ELEMENT_RGB_COLOR];
+  const char *str;
+  const char *color;
 };
 
 enum
@@ -84,44 +84,79 @@ get_char_index (char c)
   return N_CHARS;
 }
 
+struct keywords_set {
+  const char *prev_allowed;
+  const char *next_allowed;
+
+  struct keyword *keywords;
+};
+
 /**
  * C programming language
  **/
-static struct keyword c_keywords[] = {
-  { "#include",   "#E91E63" },
-  { "#define ",   "#E91E63" },
-  { "for ",       "#D84315" },
-  { "while ",     "#D84315" },
-  { "do ",        "#D84315" },
-  { "break",      "#D84315" },
-  { "if ",        "#D84315" },
-  { "else ",      "#D84315" },
-  { "switch ",    "#D84315" },
-  { "continue",   "#D84315" },
-  { "return ",    "#D84315" },
-  { "int ",       "#6A1B9A" },
-  { "char ",      "#6A1B9A" },
-  { "float ",     "#6A1B9A" },
-  { "double ",    "#6A1B9A" },
-  { "long ",      "#6A1B9A" },
-  { "short ",     "#6A1B9A" },
-  { "unsigned ",  "#6A1B9A" },
-  { "signed ",    "#6A1B9A" },
-  { "void ",      "#6A1B9A" },
-  { "static ",    "#6A1B9A" },
-  { "struct ",    "#1565C0" },
-  { "union ",     "#1565C0" },
-  { "enum ",      "#1565C0" },
-  { "sizeof",     "#D84315" },
-  { "typedef ",   "#D84315" },
-  { "enum ",      "#D84315" },
+static struct keywords_set *c_keywords[4] = {
+  [0] = & (struct keywords_set) {
+    NULL,
+    NULL,
+    (struct keyword[]) {
+      { "#include",   "#E91E63" },
+      { "#define ",   "#E91E63" },
+      { NULL, NULL }
+    }
+  },
+  [1] = & (struct keywords_set) {
+    NULL,
+    NULL,
+    (struct keyword[]) {
+      { "for",       "#D84315" },
+      { "while",     "#D84315" },
+      { "do",        "#D84315" },
+      { "break",     "#D84315" },
+      { "if",        "#D84315" },
+      { "else",      "#D84315" },
+      { "switch",    "#D84315" },
+      { "continue",  "#D84315" },
+      { "return",    "#D84315" },
+      { NULL, NULL }
+    }
+  },
+  [2] = & (struct keywords_set) {
+    NULL,
+    NULL,
+    (struct keyword[]) {
+      { "int",       "#6A1B9A" },
+      { "char",      "#6A1B9A" },
+      { "float",     "#6A1B9A" },
+      { "double",    "#6A1B9A" },
+      { "long",      "#6A1B9A" },
+      { "short",     "#6A1B9A" },
+      { "unsigned",  "#6A1B9A" },
+      { "signed",    "#6A1B9A" },
+      { "void",      "#6A1B9A" },
+      { NULL, NULL }
+    }
+	},
+  [3] = & (struct keywords_set) {
+     NULL,
+     NULL,
+     (struct keyword[]) {
+      { "static",    "#6A1B9A" },
+      { "struct",    "#1565C0" },
+      { "union ",    "#1565C0" },
+      { "enum",      "#1565C0" },
+      { "sizeof",    "#D84315" },
+      { "typedef",   "#D84315" },
+      { "enum",      "#D84315" },
+      { NULL, NULL }
+    }
+  }
 };
 
 
 static char *
-highlight_keywords (char           *codeblk,
-                    struct keyword  keywords[],
-                    int             n_keywords)
+highlight_keywords (char                 *codeblk,
+                    struct keywords_set **set,
+                    int                   n_keyword_types)
 {
   int size = 1000;
   int count = 0;
@@ -134,7 +169,8 @@ highlight_keywords (char           *codeblk,
 
   while (*ptr != '\0')
     {
-      int i = n_keywords;
+      int i;
+      struct keyword *match = NULL;
 
       if (count == size - 1)
         {
@@ -149,26 +185,39 @@ highlight_keywords (char           *codeblk,
           continue;
         }
 
-      for (i = 0; i < n_keywords; i++)
+      for (i = 0; i < n_keyword_types; i++)
         {
-          char *keyword;
+          struct keywords_set *type_set;
+          struct keyword *type;
 
-          keyword = keywords[i].str;
-          if (strncmp (ptr, keyword, strlen (keyword)) == 0)
-            break;
+          type_set = set[i];
+          type = set[i]->keywords;
+
+          for (int j = 0; type[j].str != NULL; j++)
+            {
+              const char *keyword;
+
+              keyword = type[j].str;
+
+              if (strncmp (ptr, keyword, strlen (keyword)) == 0)
+                {
+                  match = &type[j];
+                  break;
+                }
+            }
         }
 
-      if (i < n_keywords)
+      if (match != NULL)
         {
           char *cpy, *org;
-          char *strs[5] = {
+          const char *strs[5] = {
             "<font color=\"", NULL, "\">",
             NULL,
             "</font>"
           };
 
-          strs[1] = keywords[i].color;
-          strs[3] = keywords[i].str;
+          strs[1] = match->color;
+          strs[3] = match->str;
 
           cpy = &highlighted[count];
           org = cpy;
@@ -180,7 +229,7 @@ highlight_keywords (char           *codeblk,
               count += strlen (strs[i]);
             }
 
-          ptr += strlen (keywords[i].str);
+          ptr += strlen (match->str);
         }
       else /* Not a keyword */
         {
@@ -215,14 +264,14 @@ syntax_highlight (char *codeblk,
                   Lang  lang)
 {
   char *highlighted = NULL;
-  int n_keywords;
+  int n_types;
 
   switch (lang)
     {
       case LANG_C:
-        n_keywords = ARRAY_SIZE (c_keywords);
+        n_types = ARRAY_SIZE (c_keywords);
         highlighted = highlight_keywords (codeblk,
-                                          c_keywords, n_keywords);
+                                          c_keywords, n_types);
         break;
       default:
         highlighted = NULL;
