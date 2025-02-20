@@ -20,6 +20,7 @@
 
 #include "lang.h"
 #include "syntax.h"
+#include "xml.h"
 
 #include <stdio.h>
 #include <ctype.h>
@@ -51,39 +52,6 @@ struct keyword {
   const char *str;
   const char *color;
 };
-
-enum
-{
-  CHAR_LESS_THAN = 0,
-  CHAR_GREATER_THAN,
-  CHAR_AMPERSAND,
-  CHAR_DOUBLE_QUOTE,
-  CHAR_SINGLE_QUOTE,
-  N_CHARS
-};
-
-static struct {
-  char c;
-  char str[20];
-} chars[N_CHARS] = {
-  { '<',  "&lt;" },
-  { '>',  "&gt;" },
-  { '&',  "&amp;" },
-  { '"',  "&quot;" },
-  { '\'', "&apos;" },
-};
-
-static inline unsigned int
-get_char_index (char c)
-{
-  for (unsigned int i = 0; i < N_CHARS; i++)
-    {
-      if (c == chars[i].c)
-        return i;
-    }
-
-  return N_CHARS;
-}
 
 struct keywords_set {
   const char *prev_allowed;
@@ -209,8 +177,7 @@ highlight_keywords (char                 *codeblk,
 
               size = needle - str_start + 1;
 
-              strncpy (buf, str_start, size);
-              buf[size] = '\0';
+              xml_sanitize_strcpy (buf, str_start, size);
               string.str = buf;
 
               match = &string;
@@ -273,18 +240,18 @@ highlight_keywords (char                 *codeblk,
         }
       else /* Not a keyword */
         {
-          unsigned int index;
+          const char *str;
 
-          index = get_char_index (*ptr);
+          str = xml_char_replace (*ptr);
 
-          if (index != N_CHARS)
+          if (str != NULL)
             {
               char *cpy = NULL;
 
               cpy = &highlighted[count];
-              strcpy (cpy, chars[index].str);
+              strcpy (cpy, str);
 
-              count += strlen (chars[index].str);
+              count += strlen (str);
               ptr++;
             }
           else

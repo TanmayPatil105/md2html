@@ -4,6 +4,7 @@ set(SOURCES
 		md.c
 		html.c
 		syntax.c
+		xml.c
 )
 
 set (CMAKE_C_COMPILER gcc)
