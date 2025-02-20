@@ -25,6 +25,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 
 /* Number of languages supported */
@@ -94,6 +95,9 @@ struct keywords_set {
 /**
  * C programming language
  **/
+
+#define STRING_TOKEN(c) (c == '\"')
+
 static struct keywords_set *c_keywords[4] = {
   [0] = & (struct keywords_set) {
     NULL,
@@ -171,6 +175,11 @@ highlight_keywords (char                 *codeblk,
     {
       int i;
       struct keyword *match = NULL;
+      struct keyword string = {
+        .color = "#6A1B9A"
+      };
+      char buf[300] = { 0 }; /* FIXME */
+      bool advance_ptr = true;
 
       if (count == size - 1)
         {
@@ -179,7 +188,37 @@ highlight_keywords (char                 *codeblk,
           highlighted = realloc (highlighted, size);
         }
 
-      if (isspace (*ptr))
+      if (STRING_TOKEN (*ptr))
+        {
+          char *str_start, *needle;
+
+          str_start = ptr;
+          needle = str_start;
+
+          do {
+            needle = strchr (needle + 1, '\"');
+            /* skip escape sequences */
+            if (needle && * (needle - 1) !=  '\\')
+               break;
+
+          } while (needle != NULL);
+
+          if (needle != NULL)
+            {
+              size_t size;
+
+              size = needle - str_start + 1;
+
+              strncpy (buf, str_start, size);
+              buf[size] = '\0';
+              string.str = buf;
+
+              match = &string;
+              ptr += size;
+              advance_ptr = false;
+           }
+        }
+      else if (isspace (*ptr))
         {
           highlighted[count++] = *ptr++;
           continue;
@@ -229,7 +268,8 @@ highlight_keywords (char                 *codeblk,
               count += strlen (strs[i]);
             }
 
-          ptr += strlen (match->str);
+          if (advance_ptr)
+            ptr += strlen (match->str);
         }
       else /* Not a keyword */
         {
