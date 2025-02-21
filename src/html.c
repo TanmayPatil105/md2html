@@ -279,7 +279,7 @@ html_free (HTML *html)
   free (html);
 }
 
-static bool
+static inline bool
 tag_is_heading (HTMLTag tag)
 {
   return tag == HTML_TAG_H1 ||
@@ -289,10 +289,16 @@ tag_is_heading (HTMLTag tag)
 }
 
 
-static bool
+static inline bool
 tag_is_code_block (HTMLTag tag)
 {
   return tag == HTML_TAG_CODE_BLOCK;
+}
+
+static inline bool
+tag_is_list (HTMLTag tag)
+{
+  return tag == HTML_TAG_LI;
 }
 
 static char *
@@ -315,7 +321,7 @@ format_text (char *content)
           char *end = strstr (start, "***");
           if (end)
             {
-              int tag_len = 14; // <b><i></i></b>
+              int tag_len = 14;
               sprintf (replaced + len, "<b><i>%.*s</i></b>", (int)(end - start), start);
               len += end - start + tag_len;
               ptr = end + offset;
@@ -330,7 +336,7 @@ format_text (char *content)
           char *end = strstr (start, "**");
           if (end)
             {
-              int tag_len = 7; // <b></b>
+              int tag_len = 7;
               sprintf (replaced + len, "<b>%.*s</b>", (int)(end - start), start);
               len += end - start + tag_len;
               ptr = end + offset;
@@ -345,7 +351,7 @@ format_text (char *content)
           char *end = strchr (start, '*');
           if (end)
             {
-              int tag_len = 7; // <i></i>
+              int tag_len = 7;
               sprintf (replaced + len, "<i>%.*s</i>", (int)(end - start), start);
               len += end - start + tag_len;
               ptr = end + offset;
@@ -504,7 +510,8 @@ post_format (HTMLFile *file,
    */
   if (!(tag_is_heading (unit->tag)  ||
         tag_is_code_block (unit->tag) ||
-        ((index != 0) && unit->tag == HTML_TAG_NEWLINE && tag_is_heading (html->html[index - 1]->tag))))
+        tag_is_list (unit->tag) ||
+       ((index != 0) && unit->tag == HTML_TAG_NEWLINE && tag_is_heading (html->html[index - 1]->tag))))
     INSERT_LINEBREAK (file);
 
   if (unit->tag == HTML_TAG_LI &&
