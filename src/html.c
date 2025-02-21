@@ -54,9 +54,7 @@ static html_tags tags[] = {
   {HTML_TAG_H3, "<h3>", "</h3>"},
   {HTML_TAG_LI, "<li>", "</li>"},
   {HTML_TAG_BLOCKQUOTE, "<blockquote><q>", "</q></blockquote>"},
-  {HTML_TAG_CODE_BLOCK_START, "<pre>\n<code>", NULL},
-  {HTML_TAG_CODE_BLOCK_END, NULL, "</code>\n</pre>"},
-  {HTML_TAG_CODE_BLOCK_LINE, NULL, NULL},
+  {HTML_TAG_CODE_BLOCK, "<pre>\n<code>", "</code>\n</pre>"},
 
   /* FIXME: Treat as <p> */
   {HTML_TAG_NONE, NULL, NULL},
@@ -110,12 +108,8 @@ find_html_tag (UnitType type)
         return HTML_TAG_BLOCKQUOTE;
       case UNIT_TYPE_NONE:
         return HTML_TAG_NEWLINE;
-      case UNIT_TYPE_CODE_BLOCK_START:
-        return HTML_TAG_CODE_BLOCK_START;
-      case UNIT_TYPE_CODE_BLOCK_END:
-        return HTML_TAG_CODE_BLOCK_END;
-      case UNIT_TYPE_CODE_BLOCK_LINE:
-        return HTML_TAG_CODE_BLOCK_LINE;
+      case UNIT_TYPE_CODE_BLOCK:
+        return HTML_TAG_CODE_BLOCK;
       default:
        return HTML_TAG_NONE;
     }
@@ -298,9 +292,7 @@ tag_is_heading (HTMLTag tag)
 static bool
 tag_is_code_block (HTMLTag tag)
 {
-  return tag == HTML_TAG_CODE_BLOCK_LINE ||
-         tag == HTML_TAG_CODE_BLOCK_START ||
-         tag == HTML_TAG_CODE_BLOCK_END;
+  return tag == HTML_TAG_CODE_BLOCK;
 }
 
 static char *
@@ -308,10 +300,10 @@ format_text (char *content)
 {
   char *replaced = NULL;
   char *ptr = NULL;
+  size_t size = 256;
   size_t len = 0;
 
-  // empty string
-  replaced = calloc (sizeof (char), 1);
+  replaced = malloc (sizeof (char) * size);
   ptr = content;
 
   while (*ptr)
@@ -324,7 +316,6 @@ format_text (char *content)
           if (end)
             {
               int tag_len = 14; // <b><i></i></b>
-              replaced = realloc (replaced, len + end - start + tag_len + 1);
               sprintf (replaced + len, "<b><i>%.*s</i></b>", (int)(end - start), start);
               len += end - start + tag_len;
               ptr = end + offset;
@@ -340,7 +331,6 @@ format_text (char *content)
           if (end)
             {
               int tag_len = 7; // <b></b>
-              replaced = realloc (replaced, len + end - start + tag_len + 1);
               sprintf (replaced + len, "<b>%.*s</b>", (int)(end - start), start);
               len += end - start + tag_len;
               ptr = end + offset;
@@ -356,7 +346,6 @@ format_text (char *content)
           if (end)
             {
               int tag_len = 7; // <i></i>
-              replaced = realloc (replaced, len + end - start + tag_len + 1);
               sprintf (replaced + len, "<i>%.*s</i>", (int)(end - start), start);
               len += end - start + tag_len;
               ptr = end + offset;
@@ -377,7 +366,6 @@ format_text (char *content)
               if (src_end)
                 {
                   int tag_len = 19;
-                  replaced = realloc (replaced, len + src_end - alt_start - 3 + tag_len + 2);
                   sprintf (replaced + len, "<img src=\"%.*s\" alt=\"%.*s\">",
                                           (int) (src_end - src_start), src_start,
                                           (int) (alt_end - alt_start), alt_start);
@@ -401,7 +389,6 @@ format_text (char *content)
               if (href_end)
                 {
                   int tag_len = 15;
-                  replaced = realloc (replaced, len + href_end - anc_start - 3 + tag_len + 2);
                   sprintf (replaced + len, "<a href=\"%.*s\">%.*s</a>",
                                           (int) (href_end - href_start), href_start,
                                           (int) (anc_end - anc_start), anc_start);
@@ -413,12 +400,15 @@ format_text (char *content)
             }
         }
 
-      /* move forward */
-      replaced = realloc (replaced, len + 2);
       replaced[len++] = *ptr++;
-      replaced[len] = '\0';
+      if (len >= size)
+        {
+          size <<= 1;
+          replaced = realloc (replaced, size);
+        }
     }
 
+  replaced[len] = '\0';
   /* give ownership */
   return replaced;
 }
@@ -446,26 +436,17 @@ flush_content (HTMLFile *file,
   if (tags[unit->tag].start_tag)
     FWRITE_STR (tags[unit->tag].start_tag, file);
 
-  if (unit->tag == HTML_TAG_CODE_BLOCK_START)
-    {
-      curr_lang = unit->lang;
-    }
-  else if (unit->tag == HTML_TAG_CODE_BLOCK_END)
-    {
-      curr_lang = LANG_NONE;
-    }
-
   if (unit->content)
     {
-      if (unit->tag == HTML_TAG_CODE_BLOCK_LINE)
+      if (unit->tag == HTML_TAG_CODE_BLOCK)
         {
-          if (curr_lang == LANG_NONE)
+          if (unit->lang == LANG_NONE)
             {
               FWRITE_STR (unit->content, file);
             }
           else
             {
-              syntax_highlight_block (unit->content, curr_lang, file);
+              syntax_highlight_block (unit->content, unit->lang, file);
             }
         }
       else

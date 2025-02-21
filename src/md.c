@@ -52,23 +52,13 @@
  * ```
  */
 
-static int code_block_count = 0;
-
-#define IS_CODE_BLOCK_START(line)     \
+#define IS_CODE_BLOCK_BOUND(line)     \
         (line[0] && line[0] == '`' && \
          line[1] && line[1] == '`' && \
-         line[2] && line[2] == '`' && \
-         (code_block_count % 2 == 0))
+         line[2] && line[2] == '`')
 
-#define IS_CODE_BLOCK_END(line)       \
-        (line[0] && line[0] == '`' && \
-         line[1] && line[1] == '`' && \
-         line[2] && line[2] == '`' && \
-         (code_block_count % 2 == 1))
-
-#define IS_CODE_BLOCK_LINE(prev)               \
-        (prev == UNIT_TYPE_CODE_BLOCK_START || \
-         prev == UNIT_TYPE_CODE_BLOCK_LINE)
+#define IS_CODE_BLOCK_LINE(prev) \
+        (code_block_count == 1)
 
 /*
  * md_init
@@ -128,8 +118,7 @@ find_md_unit_type (char *line)
 {
   /* empty line */
   if (line[0] &&
-      line[0] == '\n' &&
-      !IS_CODE_BLOCK_LINE (prev_md_unit))
+      line[0] == '\n')
     {
       return UNIT_TYPE_NONE;
     }
@@ -146,23 +135,11 @@ find_md_unit_type (char *line)
       return UNIT_TYPE_BULLET;
     }
 
-
-  if (IS_CODE_BLOCK_START (line))
+  if (IS_CODE_BLOCK_BOUND (line))
     {
-      code_block_count++;
-      return UNIT_TYPE_CODE_BLOCK_START;
+      return UNIT_TYPE_CODE_BLOCK_BOUND;
     }
 
-  if (IS_CODE_BLOCK_END (line))
-    {
-      code_block_count++;
-      return UNIT_TYPE_CODE_BLOCK_END;
-    }
-
-  if (IS_CODE_BLOCK_LINE (prev_md_unit))
-    {
-      return UNIT_TYPE_CODE_BLOCK_LINE;
-    }
 
   if (line[0] &&
       line[0] == '#')
@@ -232,10 +209,6 @@ find_md_content (char    *line,
       case UNIT_TYPE_QUOTE:
         line += 2;
         break;
-      case UNIT_TYPE_CODE_BLOCK_START:
-        return NULL;
-      case UNIT_TYPE_CODE_BLOCK_END:
-        return NULL;
       default:
         break;
     }
@@ -255,30 +228,6 @@ find_code_block_lang (char *line)
     return LANG_C;
 
   return LANG_NONE;
-}
-
-static MDUnit *
-read_md_unit (char *line,
-              MD   *md)
-{
-  MDUnit *unit = NULL;
-  UnitType type;
-  char *content = NULL;
-
-  md_unit_init (&unit);
-
-  type = find_md_unit_type (line);
-  prev_md_unit = type;
-  unit->type = type;
-
-  /* make a copy */
-  if (content = remove_trailing_new_line (find_md_content (line, type)))
-    unit->content = strdup (content);
-
-  if (type == UNIT_TYPE_CODE_BLOCK_START)
-    unit->lang = find_code_block_lang (line);
-
-  return unit;
 }
 
 /*
@@ -309,7 +258,54 @@ parse_md (MDFile *file)
   /* read file line by line */
   while ((read = getline (&line, &len, file) != -1))
     {
-      unit = read_md_unit (line, md);
+      MDUnit *unit = NULL;
+
+      md_unit_init (&unit);
+
+      unit->type = find_md_unit_type (line);
+
+      if (unit->type == UNIT_TYPE_CODE_BLOCK_BOUND)
+        {
+          unit->lang = find_code_block_lang (line);
+          unit->type = UNIT_TYPE_CODE_BLOCK;
+        }
+
+      if (unit->type == UNIT_TYPE_CODE_BLOCK)
+        {
+          size_t buf_size = 256;
+          size_t count = 1, read_len, code_len;
+          char *buf;
+
+          buf = malloc (sizeof (char) * buf_size);
+          buf[0] = '\n'; /* add a newline */
+
+          while ((read_len = getline (&line, &code_len, file)) != -1)
+            {
+              if (find_md_unit_type (line) == UNIT_TYPE_CODE_BLOCK_BOUND)
+                break;
+
+              if (buf_size < count + read_len)
+                {
+                  buf_size <<= 1;
+                  buf = realloc (buf, sizeof (char) * buf_size);
+                }
+
+              memcpy (&buf[count], line, read_len);
+              count += read_len;
+            }
+
+          buf[count] = '\0';
+          unit->content = buf;
+        }
+      else
+        {
+          char *content = NULL;
+
+          content = remove_trailing_new_line (find_md_content (line,
+                                                               unit->type));
+          if (content != NULL)
+            unit->content = strdup (content);
+        }
 
       /* Append to md->elements */
       if (next == NULL)
