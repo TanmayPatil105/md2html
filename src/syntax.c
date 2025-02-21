@@ -128,6 +128,35 @@ static struct keywords_set *c_keywords[4] = {
   }
 };
 
+static size_t
+extract_text (char   *start,
+              char   *buf,
+              size_t  buf_len,
+              char   *pattern)
+{
+  size_t size = 0;
+  char *str_start, *needle;
+
+  needle = start;
+
+  do {
+    needle = strstr (needle + 1, pattern);
+
+    /* skip escape sequences */
+    if (needle && * (needle - 1) !=  '\\')
+       break;
+
+  } while (needle != NULL);
+
+  if (needle != NULL)
+    {
+      size = needle - start + 1;
+
+      xml_sanitize_strcpy (buf, start, size);
+    }
+
+  return size;
+}
 
 static char *
 highlight_keywords (char                 *codeblk,
@@ -160,65 +189,35 @@ highlight_keywords (char                 *codeblk,
 
       if (STRING_TOKEN (*ptr))
         {
-          char *str_start, *needle;
+          size_t size;
 
-          str_start = ptr;
-          needle = str_start;
+          size = extract_text (ptr, buf, sizeof (buf), "\"");
 
-          do {
-            needle = strchr (needle + 1, '\"');
-            /* skip escape sequences */
-            if (needle && * (needle - 1) !=  '\\')
-               break;
-
-          } while (needle != NULL);
-
-          if (needle != NULL)
+          if (size != 0)
             {
-              size_t size;
-
-              size = needle - str_start + 1;
-
-              xml_sanitize_strcpy (buf, str_start, size);
               string.str = buf;
+              string.color = "#6A1B9A";
 
               match = &string;
               ptr += size;
               advance_ptr = false;
-           }
-
-          string.color = "#6A1B9A";
+            }
         }
       else if (COMMENT_TOKEN (ptr))
         {
-          char *str_start, *needle;
+          size_t size;
 
-          str_start = ptr;
-          needle = str_start;
+          size = extract_text (ptr, buf, sizeof (buf), "*/");
 
-          do {
-            needle = strstr (needle + 1, "*/");
-            /* skip escape sequences */
-            if (needle && * (needle - 1) !=  '\\')
-               break;
-
-          } while (needle != NULL);
-
-          if (needle != NULL)
+          if (size != 0)
             {
-              size_t size;
-
-              size = needle - str_start + 1;
-
-              xml_sanitize_strcpy (buf, str_start, size);
               string.str = buf;
+              string.color = "#006400";
 
               match = &string;
               ptr += size;
               advance_ptr = false;
-           }
-
-          string.color = "#006400";
+            }
         }
       else if (isspace (*ptr))
         {
