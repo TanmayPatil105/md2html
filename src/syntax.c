@@ -66,6 +66,10 @@ struct keywords_set {
 
 #define STRING_TOKEN(c) (c == '\"')
 
+#define COMMENT_TOKEN(ptr) \
+        (ptr[0] == '/' &&  \
+         ptr[1] && ptr[1] == '*')
+
 static struct keywords_set *c_keywords[4] = {
   [0] = & (struct keywords_set) {
     NULL,
@@ -96,15 +100,15 @@ static struct keywords_set *c_keywords[4] = {
     NULL,
     NULL,
     (struct keyword[]) {
-      { "int",       "#1565C0" },
-      { "char",      "#1565C0" },
-      { "float",     "#1565C0" },
-      { "double",    "#1565C0" },
-      { "long",      "#1565C0" },
-      { "short",     "#1565C0" },
-      { "unsigned",  "#1565C0" },
-      { "signed",    "#1565C0" },
-      { "void",      "#1565C0" },
+      { "int",       "#0000bb" },
+      { "char",      "#0000bb" },
+      { "float",     "#0000bb" },
+      { "double",    "#0000bb" },
+      { "long",      "#0000bb" },
+      { "short",     "#0000bb" },
+      { "unsigned",  "#0000bb" },
+      { "signed",    "#0000bb" },
+      { "void",      "#0000bb" },
       { NULL, NULL }
     }
 	},
@@ -112,10 +116,10 @@ static struct keywords_set *c_keywords[4] = {
      NULL,
      NULL,
      (struct keyword[]) {
-      { "static",    "#6A1B9A" },
-      { "struct",    "#1565C0" },
-      { "union ",    "#1565C0" },
-      { "enum",      "#1565C0" },
+      { "static",    "#0000bb" },
+      { "struct",    "#0000bb" },
+      { "union ",    "#0000bb" },
+      { "enum",      "#0000bb" },
       { "sizeof",    "#D84315" },
       { "typedef",   "#D84315" },
       { "enum",      "#D84315" },
@@ -134,6 +138,7 @@ highlight_keywords (char                 *codeblk,
   int count = 0;
   char *highlighted = NULL;
   char *ptr = NULL;
+  struct keyword string;
 
   highlighted = malloc (sizeof (char) * size);
 
@@ -143,9 +148,6 @@ highlight_keywords (char                 *codeblk,
     {
       int i;
       struct keyword *match = NULL;
-      struct keyword string = {
-        .color = "#6A1B9A"
-      };
       char buf[300] = { 0 }; /* FIXME */
       bool advance_ptr = true;
 
@@ -184,6 +186,39 @@ highlight_keywords (char                 *codeblk,
               ptr += size;
               advance_ptr = false;
            }
+
+          string.color = "#6A1B9A";
+        }
+      else if (COMMENT_TOKEN (ptr))
+        {
+          char *str_start, *needle;
+
+          str_start = ptr;
+          needle = str_start;
+
+          do {
+            needle = strstr (needle + 1, "*/");
+            /* skip escape sequences */
+            if (needle && * (needle - 1) !=  '\\')
+               break;
+
+          } while (needle != NULL);
+
+          if (needle != NULL)
+            {
+              size_t size;
+
+              size = needle - str_start + 1;
+
+              xml_sanitize_strcpy (buf, str_start, size);
+              string.str = buf;
+
+              match = &string;
+              ptr += size;
+              advance_ptr = false;
+           }
+
+          string.color = "#006400";
         }
       else if (isspace (*ptr))
         {
