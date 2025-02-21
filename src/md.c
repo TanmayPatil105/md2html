@@ -273,25 +273,25 @@ parse_md (MDFile *file)
       if (unit->type == UNIT_TYPE_CODE_BLOCK)
         {
           size_t buf_size = 256;
-          size_t count = 1, read_len, code_len;
+          size_t count = 1;
           char *buf;
 
           buf = malloc (sizeof (char) * buf_size);
           buf[0] = '\n'; /* add a newline */
 
-          while ((read_len = getline (&line, &code_len, file)) != -1)
+          while ((read = getline (&line, &len, file)) != -1)
             {
               if (find_md_unit_type (line) == UNIT_TYPE_CODE_BLOCK_BOUND)
                 break;
 
-              if (buf_size < count + read_len)
+              if (buf_size < count + read)
                 {
                   buf_size <<= 1;
                   buf = realloc (buf, sizeof (char) * buf_size);
                 }
 
-              memcpy (&buf[count], line, read_len);
-              count += read_len;
+              memcpy (&buf[count], line, read);
+              count += read;
             }
 
           buf[count] = '\0';
