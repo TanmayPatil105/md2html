@@ -54,7 +54,7 @@ static html_tags tags[] = {
   {HTML_TAG_H3, "<h3>", "</h3>"},
   {HTML_TAG_LI, "<li>", "</li>"},
   {HTML_TAG_BLOCKQUOTE, "<blockquote><q>", "</q></blockquote>"},
-  {HTML_TAG_CODE_BLOCK, "<pre>\n<code>", "</code>\n</pre>"},
+  {HTML_TAG_CODE_BLOCK, "<pre>", "</pre>"},
 
   /* FIXME: Treat as <p> */
   {HTML_TAG_NONE, NULL, NULL},
