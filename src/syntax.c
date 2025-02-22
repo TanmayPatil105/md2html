@@ -102,10 +102,12 @@ static struct keywords_set *c_keywords[4] = {
       { "long",      "#0000bb" },
       { "short",     "#0000bb" },
       { "unsigned",  "#0000bb" },
+      { "bool",      "#0000bb" },
       { "signed",    "#0000bb" },
       { "static",    "#0000bb" },
       { "struct",    "#0000bb" },
       { "void",      "#0000bb" },
+      { "size_t",    "#0000bb" },
       { NULL, NULL }
     }
 	},
@@ -116,6 +118,8 @@ static struct keywords_set *c_keywords[4] = {
       { "sizeof",    "#D84315" },
       { "typedef",   "#D84315" },
       { "enum",      "#D84315" },
+      { "true",      "#D84315" },
+      { "false",     "#D84315" },
       { "NULL",      "#6A1B9A" },
       { NULL, NULL }
     }
