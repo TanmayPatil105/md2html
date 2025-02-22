@@ -105,6 +105,7 @@ static struct keywords_set *c_keywords[4] = {
       { "bool",      "#0000bb" },
       { "signed",    "#0000bb" },
       { "static",    "#0000bb" },
+      { "const",     "#0000bb" },
       { "struct",    "#0000bb" },
       { "void",      "#0000bb" },
       { "size_t",    "#0000bb" },
@@ -250,9 +251,13 @@ highlight_keywords (char                 *codeblk,
           char *pattern;
 
           if (STRING_TOKEN (*ptr))
-            pattern = "\"";
+            {
+              pattern = "\"";
+            }
           else
-            pattern = "\'";
+            {
+              pattern = "\'";
+            }
 
           size = extract_text (ptr, buf, sizeof (buf), pattern);
 
