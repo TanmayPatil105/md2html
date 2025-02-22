@@ -32,13 +32,7 @@
 /* Number of languages supported */
 #define N_LANGS LANG_NONE
 
-/* keyword maximum string size */
-#define MAX_KEYWORD_STR_SIZE 100
-
-/* RGB color for highlighting a string
- *
- * Eg. #C061CB */
-#define MAX_ELEMENT_RGB_COLOR  8
+#define NULL_CHAR '\0'
 
 /*
  * Utility macros
@@ -54,9 +48,6 @@ struct keyword {
 };
 
 struct keywords_set {
-  const char *prev_allowed;
-  const char *next_allowed;
-
   struct keyword *keywords;
 };
 
@@ -65,6 +56,11 @@ struct keywords_set {
  **/
 
 #define STRING_TOKEN(c) (c == '\"')
+#define CHAR_TOKEN(c) (c == '\'')
+
+#define STRING_CHAR_TOKEN(c) \
+        (STRING_TOKEN (c) || \
+         CHAR_TOKEN (c))
 
 #define COMMENT_TOKEN(ptr) \
         (ptr[0] == '/' &&  \
@@ -72,8 +68,6 @@ struct keywords_set {
 
 static struct keywords_set *c_keywords[4] = {
   [0] = & (struct keywords_set) {
-    NULL,
-    NULL,
     (struct keyword[]) {
       { "#include",   "#E91E63" },
       { "#define ",   "#E91E63" },
@@ -81,8 +75,6 @@ static struct keywords_set *c_keywords[4] = {
     }
   },
   [1] = & (struct keywords_set) {
-    NULL,
-    NULL,
     (struct keyword[]) {
       { "for",       "#D84315" },
       { "while",     "#D84315" },
@@ -97,8 +89,6 @@ static struct keywords_set *c_keywords[4] = {
     }
   },
   [2] = & (struct keywords_set) {
-    NULL,
-    NULL,
     (struct keyword[]) {
       { "int",       "#0000bb" },
       { "char",      "#0000bb" },
@@ -108,16 +98,14 @@ static struct keywords_set *c_keywords[4] = {
       { "short",     "#0000bb" },
       { "unsigned",  "#0000bb" },
       { "signed",    "#0000bb" },
+      { "static",    "#0000bb" },
+      { "struct",    "#0000bb" },
       { "void",      "#0000bb" },
       { NULL, NULL }
     }
 	},
   [3] = & (struct keywords_set) {
-     NULL,
-     NULL,
      (struct keyword[]) {
-      { "static",    "#0000bb" },
-      { "struct",    "#0000bb" },
       { "union ",    "#0000bb" },
       { "enum",      "#0000bb" },
       { "sizeof",    "#D84315" },
@@ -127,6 +115,15 @@ static struct keywords_set *c_keywords[4] = {
     }
   }
 };
+
+static bool
+__isalnum (char c)
+{
+  if (c == '_')
+    return true;
+
+  return isalnum (c);
+}
 
 static size_t
 extract_text (char   *start,
@@ -187,11 +184,17 @@ highlight_keywords (char                 *codeblk,
           highlighted = realloc (highlighted, size);
         }
 
-      if (STRING_TOKEN (*ptr))
+      if (STRING_CHAR_TOKEN (*ptr))
         {
           size_t size;
+          char *pattern;
 
-          size = extract_text (ptr, buf, sizeof (buf), "\"");
+          if (STRING_TOKEN (*ptr))
+            pattern = "\"";
+          else
+            pattern = "\'";
+
+          size = extract_text (ptr, buf, sizeof (buf), pattern);
 
           if (size != 0)
             {
@@ -241,8 +244,12 @@ highlight_keywords (char                 *codeblk,
 
               if (strncmp (ptr, keyword, strlen (keyword)) == 0)
                 {
-                  match = &type[j];
-                  break;
+                  if (!__isalnum (* (ptr - 1))
+                      && !__isalnum (* (ptr + strlen (keyword))))
+                    {
+                      match = &type[j];
+                      break;
+                    }
                 }
             }
         }
