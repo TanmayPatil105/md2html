@@ -66,6 +66,9 @@ struct keywords_set {
         (ptr[0] == '/' &&  \
          ptr[1] && ptr[1] == '*')
 
+#define NUMBER_TOKEN(c) \
+        (c >= '0' && c <= '9')
+
 static struct keywords_set *c_keywords[4] = {
   [0] = & (struct keywords_set) {
     (struct keyword[]) {
@@ -137,6 +140,43 @@ isescape_sequence (char *ptr)
     return false;
 
   return true;
+}
+
+static size_t
+get_number_length (char *str)
+{
+  /* we have already processed first character */
+  size_t size = 1;
+  str++;
+
+  /* FIXME: handle binary and hexadecimal numbers */
+
+  while (*str != '\0')
+    {
+      if (!NUMBER_TOKEN (*str))
+        break;
+
+      str++;
+      size++;
+    }
+
+  return size;
+}
+
+static size_t
+extract_number (char   *str,
+                char   *buf)
+{
+  size_t size;
+
+  size = get_number_length (str);
+
+  if (size != 0)
+    {
+      strncpy (buf, str, size);
+    }
+
+  return size;
 }
 
 static size_t
@@ -227,6 +267,22 @@ highlight_keywords (char                 *codeblk,
           size_t size;
 
           size = extract_text (ptr, buf, sizeof (buf), "*/");
+
+          if (size != 0)
+            {
+              string.str = buf;
+              string.color = "#006400";
+
+              match = &string;
+              ptr += size;
+              advance_ptr = false;
+            }
+        }
+      else if (NUMBER_TOKEN (*ptr))
+        {
+          size_t size;
+
+          size = extract_number (ptr, buf);
 
           if (size != 0)
             {
