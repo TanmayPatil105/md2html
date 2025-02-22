@@ -85,6 +85,8 @@ static struct keywords_set *c_keywords[4] = {
       { "switch",    "#D84315" },
       { "continue",  "#D84315" },
       { "return",    "#D84315" },
+      { "case",      "#D84315" },
+      { "default",   "#D84315" },
       { NULL, NULL }
     }
   },
@@ -125,6 +127,17 @@ __isalnum (char c)
   return isalnum (c);
 }
 
+static bool
+isescape_sequence (char *ptr)
+{
+  if (* (ptr) != '\\')
+    return false;
+  else if (* (ptr - 1) == '\\')
+    return false;
+
+  return true;
+}
+
 static size_t
 extract_text (char   *start,
               char   *buf,
@@ -140,7 +153,7 @@ extract_text (char   *start,
     needle = strstr (needle + 1, pattern);
 
     /* skip escape sequences */
-    if (needle && * (needle - 1) !=  '\\')
+    if (needle && !isescape_sequence (needle - 1))
        break;
 
   } while (needle != NULL);
@@ -177,9 +190,11 @@ highlight_keywords (char                 *codeblk,
       char buf[300] = { 0 }; /* FIXME */
       bool advance_ptr = true;
 
-      if (count == size - 1)
+      /* This is a bit risky;
+       * implement better logic or add a wrapper over strcpy */
+      if (count == size - 100)
         {
-          size <<= 2;
+          size <<= 1;
 
           highlighted = realloc (highlighted, size);
         }
