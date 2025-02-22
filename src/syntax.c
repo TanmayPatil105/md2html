@@ -113,6 +113,7 @@ static struct keywords_set *c_keywords[4] = {
       { "sizeof",    "#D84315" },
       { "typedef",   "#D84315" },
       { "enum",      "#D84315" },
+      { "NULL",      "#6A1B9A" },
       { NULL, NULL }
     }
   }
