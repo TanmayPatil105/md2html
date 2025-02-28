@@ -68,6 +68,12 @@ struct keywords_set {
 
 #define NUMBER_TOKEN(c) \
         (c >= '0' && c <= '9')
+#define BINARY_TOKEN(c) \
+        (c == '0' || c == '1')
+#define HEX_TOKEN(c) \
+        (NUMBER_TOKEN (c)       || \
+         (c >= 'a' && c <= 'f') || \
+         (c >= 'A' && c <= 'F'))
 
 static struct keywords_set *c_keywords[4] = {
   [0] = & (struct keywords_set) {
@@ -148,13 +154,63 @@ isescape_sequence (char *ptr)
 }
 
 static size_t
+handle_binary (char *str)
+{
+  size_t size = 0;
+
+  while (*str != '\0')
+    {
+      if (!BINARY_TOKEN (*str))
+        break;
+
+      str++;
+      size++;
+    }
+
+  return size;
+}
+
+static size_t
+handle_hex (char *str)
+{
+  size_t size = 0;
+
+  while (*str != '\0')
+    {
+      if (!HEX_TOKEN (*str))
+        break;
+
+      str++;
+      size++;
+    }
+
+  return size;
+}
+
+static size_t
 get_number_length (char *str)
 {
   /* we have already processed first character */
   size_t size = 1;
-  str++;
 
-  /* FIXME: handle binary and hexadecimal numbers */
+  if (*str == '0')
+    {
+      size_t ret = -1;
+
+      if (* (str + 1) == 'b')
+        {
+          ret = handle_binary (str + 2);
+        }
+      else if (* (str + 1) == 'x')
+        {
+          ret = handle_hex (str + 2);
+        }
+
+      if (ret != -1)
+        return ret + 2;
+    }
+
+  str++;
 
   while (*str != '\0')
     {
