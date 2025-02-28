@@ -383,6 +383,7 @@ highlight_keywords (char                 *codeblk,
                     {
                       match = &type[j];
                       len = keyword_len;
+                      i = n_keyword_types;
                       break;
                     }
                 }
