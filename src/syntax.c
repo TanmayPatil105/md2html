@@ -288,18 +288,10 @@ highlight_keywords (char                 *codeblk,
   while (*ptr != '\0')
     {
       int i;
+      int len = 0;
       struct keyword *match = NULL;
       char buf[300] = { 0 }; /* FIXME */
       bool advance_ptr = true;
-
-      /* This is a bit risky;
-       * implement better logic or add a wrapper over strcpy */
-      if (count == size - 100)
-        {
-          size <<= 1;
-
-          highlighted = realloc (highlighted, size);
-        }
 
       if (STRING_CHAR_TOKEN (*ptr))
         {
@@ -324,6 +316,7 @@ highlight_keywords (char                 *codeblk,
 
               match = &string;
               ptr += size;
+              len = size;
               advance_ptr = false;
             }
         }
@@ -340,6 +333,7 @@ highlight_keywords (char                 *codeblk,
 
               match = &string;
               ptr += size;
+              len = size;
               advance_ptr = false;
             }
         }
@@ -356,6 +350,7 @@ highlight_keywords (char                 *codeblk,
 
               match = &string;
               ptr += size;
+              len = size;
               advance_ptr = false;
             }
         }
@@ -376,15 +371,18 @@ highlight_keywords (char                 *codeblk,
           for (int j = 0; type[j].str != NULL; j++)
             {
               const char *keyword;
+              size_t keyword_len;
 
               keyword = type[j].str;
+              keyword_len = strlen (keyword);
 
-              if (strncmp (ptr, keyword, strlen (keyword)) == 0)
+              if (strncmp (ptr, keyword, keyword_len) == 0)
                 {
                   if (!__isalnum (* (ptr - 1))
-                      && !__isalnum (* (ptr + strlen (keyword))))
+                      && !__isalnum (* (ptr + keyword_len)))
                     {
                       match = &type[j];
+                      len = keyword_len;
                       break;
                     }
                 }
@@ -393,12 +391,20 @@ highlight_keywords (char                 *codeblk,
 
       if (match != NULL)
         {
+          const int font_tag_size = 28; /* pre-calculated */
           char *cpy, *org;
           const char *strs[5] = {
             "<font color=\"", NULL, "\">",
             NULL,
             "</font>"
           };
+
+          if (count + font_tag_size + len >= size - 1)
+            {
+              size <<= 1;
+
+              highlighted = realloc (highlighted, size);
+            }
 
           strs[1] = match->color;
           strs[3] = match->str;
