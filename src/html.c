@@ -485,11 +485,14 @@ pre_format (HTMLFile *file,
       UL_TOP_LEVEL_START (file);
     }
 
-  if (html->document && !tag_is_code_block (unit->tag))
-    INSERT_TABSPACE (file);
+  if (unit->tag != HTML_TAG_NEWLINE)
+    {
+      if (html->document && !tag_is_code_block (unit->tag))
+        INSERT_TABSPACE (file);
 
-  if (unit->tag == HTML_TAG_LI)
-    INSERT_TABSPACE (file);
+      if (unit->tag == HTML_TAG_LI)
+        INSERT_TABSPACE (file);
+    }
 }
 
 static void
