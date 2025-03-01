@@ -51,6 +51,8 @@ struct keywords_set {
   struct keyword *keywords;
 };
 
+const int font_tag_size = 28; /* pre-calculated */
+
 /**
  * C programming language
  **/
@@ -392,7 +394,6 @@ highlight_keywords (char                 *codeblk,
 
       if (match != NULL)
         {
-          const int font_tag_size = 28; /* pre-calculated */
           char *cpy, *org;
           const char *strs[5] = {
             "<font color=\"", NULL, "\">",
@@ -451,6 +452,9 @@ highlight_keywords (char                 *codeblk,
   return highlighted;
 }
 
+/* DIFF */
+
+
 static bool
 diff_keyword (char        *line,
               const char **color)
@@ -499,7 +503,7 @@ highlight_diff (char *diffblk)
 
       len = strlen (token);
 
-      if (len + count + 28 >= size)
+      if (len + count + font_tag_size >= size)
         {
           size <<= 1;
 
