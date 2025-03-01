@@ -27,5 +27,6 @@
 typedef enum
 {
   LANG_C = 0,     /* C programming language */
+  LANG_DIFF,      /* DIFF */
   LANG_NONE,
 } Lang;

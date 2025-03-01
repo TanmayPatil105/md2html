@@ -451,6 +451,96 @@ highlight_keywords (char                 *codeblk,
   return highlighted;
 }
 
+static bool
+diff_keyword (char        *line,
+              const char **color)
+{
+  bool ret = false;
+
+  if (strncmp (line, "+", 1) == 0)
+    {
+      ret = true;
+      *color = "#228B22";
+    }
+  else if (strncmp (line, "-", 1) == 0)
+    {
+      ret = true;
+      *color = "#DC143C";
+    }
+	else if (strncmp (line, "@@", 2) == 0)
+    {
+      ret = true;
+      *color = "#4682B4";
+    }
+
+  return ret;
+}
+
+static char *
+highlight_diff (char *diffblk)
+{
+  size_t size = 1000, count = 0;
+  char *highlighted = NULL;
+  char *token = NULL;
+  char *cpy;
+  const char *strs[5] = {
+    "<font color=\"", NULL, "\">",
+    NULL,
+    "</font>"
+  };
+
+  highlighted = malloc (sizeof (char) * size);
+
+  token = strtok (diffblk, "\n");
+
+  while (token != NULL)
+    {
+      size_t len;
+
+      len = strlen (token);
+
+      if (len + count + 28 >= size)
+        {
+          size <<= 1;
+
+          highlighted = realloc (highlighted, size);
+        }
+
+      if (diff_keyword (token, &strs[1]))
+        {
+          cpy = &highlighted[count];
+
+          for (int i = 0; i < 5; i++)
+            {
+              if (i != 3)
+                {
+                  cpy = stpcpy (cpy, strs[i]);
+                  count += strlen (strs[i]);
+                }
+              else
+                {
+                  size_t write;
+
+                  write = xml_sanitize_strcpy (cpy,
+                                                token, len);
+                  cpy += write;
+                  count += write;
+                }
+            }
+        }
+      else
+        {
+          count += xml_sanitize_strcpy (&highlighted[count], token, len);
+        }
+
+      highlighted[count++] = '\n';
+
+      token = strtok (NULL, "\n");
+    }
+
+  return highlighted;
+}
+
 char *
 syntax_highlight (char *codeblk,
                   Lang  lang)
@@ -464,6 +554,10 @@ syntax_highlight (char *codeblk,
         n_types = ARRAY_SIZE (c_keywords);
         highlighted = highlight_keywords (codeblk,
                                           c_keywords, n_types);
+        break;
+      case LANG_DIFF:
+        /* first character is newline by default */
+        highlighted = highlight_diff (codeblk + 1);
         break;
       default:
         highlighted = NULL;

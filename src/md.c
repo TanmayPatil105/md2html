@@ -219,15 +219,18 @@ find_md_content (char    *line,
 static Lang
 find_code_block_lang (char *line)
 {
-  char *lang = NULL;
+  Lang lang = LANG_NONE;
+  char *str = NULL;
 
   /* We already know it's a codeblock start */
-  lang = line + 3;
+  str = line + 3;
 
-  if (strncmp (lang, "c", 1) == 0)
-    return LANG_C;
+  if (strncmp (str, "c", 1) == 0)
+    lang = LANG_C;
+  if (strncmp (str, "diff", 4) == 0)
+    lang = LANG_DIFF;
 
-  return LANG_NONE;
+  return lang;
 }
 
 /*

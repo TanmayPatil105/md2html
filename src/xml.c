@@ -75,11 +75,12 @@ xml_char_replace (char c)
   return ret;
 }
 
-void
+size_t
 xml_sanitize_strcpy (char   *dest,
                      char   *src,
                      size_t  n)
 {
+  size_t len = 0;
   size_t count = 0;
   char *ptr = dest;
 
@@ -92,15 +93,18 @@ xml_sanitize_strcpy (char   *dest,
       if (repl != NULL)
         {
           ptr = stpcpy (ptr, repl);
+          len += strlen (repl);
         }
       else
         {
           *ptr = *src;
-          ptr++;
+          ptr += 1;
+          len += 1;
         }
 
       src++;
       count++;
     }
-}
 
+  return len;
+}

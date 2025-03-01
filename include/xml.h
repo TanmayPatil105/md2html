@@ -24,7 +24,7 @@
 #include <stddef.h>
 
 const char *xml_char_replace    (char c);
-void        xml_sanitize_strcpy (char   *dest,
+size_t      xml_sanitize_strcpy (char   *dest,
                                  char   *src,
                                  size_t  n);
 
