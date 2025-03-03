@@ -51,7 +51,7 @@ struct keywords_set {
   struct keyword *keywords;
 };
 
-const int font_tag_size = 28; /* pre-calculated */
+const int font_tag_size = 30; /* pre-calculated */
 
 /**
  * C programming language
@@ -492,7 +492,9 @@ highlight_diff (char *diffblk)
 
       len = strlen (token);
 
-      if (len + count + font_tag_size >= size)
+      /* I hate doing this;
+       * Implement a string data structure */
+      if (2 * len + count + font_tag_size >= size)
         {
           size <<= 1;
 
@@ -515,7 +517,7 @@ highlight_diff (char *diffblk)
                   size_t write;
 
                   write = xml_sanitize_strcpy (cpy,
-                                                token, len);
+                                               token, len);
                   cpy += write;
                   count += write;
                 }
@@ -530,6 +532,8 @@ highlight_diff (char *diffblk)
 
       token = strtok (NULL, "\n");
     }
+
+  highlighted[count] = '\0';
 
   return highlighted;
 }
