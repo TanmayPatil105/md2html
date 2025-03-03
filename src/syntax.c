@@ -357,7 +357,8 @@ highlight_keywords (char                 *codeblk,
               advance_ptr = false;
             }
         }
-      else if (NUMBER_TOKEN (*ptr))
+      else if (!isalpha (* (ptr - 1))
+               && NUMBER_TOKEN (*ptr))
         {
           size_t size;
 
@@ -366,7 +367,7 @@ highlight_keywords (char                 *codeblk,
           if (size != 0)
             {
               string.str = buf;
-              string.color = "#006400";
+              string.color = "#C061CB";
 
               match = &string;
               ptr += size;
