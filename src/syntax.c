@@ -356,11 +356,6 @@ highlight_keywords (char                 *codeblk,
               advance_ptr = false;
             }
         }
-      else if (isspace (*ptr))
-        {
-          highlighted[count++] = *ptr++;
-          continue;
-        }
 
       for (i = 0; i < n_keyword_types; i++)
         {
@@ -426,24 +421,19 @@ highlight_keywords (char                 *codeblk,
         }
       else /* Not a keyword */
         {
-          const char *str;
+          size_t len;
+          static int max_xml_char_size = 20; /* subject to change */
 
-          str = xml_char_replace (*ptr);
-
-          if (str != NULL)
+          if (count + max_xml_char_size >= size - 1)
             {
-              char *cpy = NULL;
+              size <<= 1;
 
-              cpy = &highlighted[count];
-              strcpy (cpy, str);
+              highlighted = realloc (highlighted, size);
+            }
 
-              count += strlen (str);
-              ptr++;
-            }
-          else
-            {
-              highlighted[count++] = *ptr++;
-            }
+          len = xml_sanitize_strcpy (&highlighted[count],
+                                     ptr++, 1);
+          count += len;
         }
     }
 
@@ -453,7 +443,6 @@ highlight_keywords (char                 *codeblk,
 }
 
 /* DIFF */
-
 
 static bool
 diff_keyword (char        *line,
