@@ -357,8 +357,8 @@ highlight_keywords (char                 *codeblk,
               advance_ptr = false;
             }
         }
-      else if (!isalpha (* (ptr - 1))
-               && NUMBER_TOKEN (*ptr))
+      else if (NUMBER_TOKEN (*ptr)
+               && !isalpha (* (ptr - 1)))
         {
           size_t size;
 

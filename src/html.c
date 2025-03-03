@@ -139,8 +139,12 @@ html_unit_init (HTMLUnit **unit,
     }
 
   (*unit)->tag = find_html_tag ((*md_unit)->type);
+
+  /* strdup is expensive;
+   * refer to the same string */
   if ((*md_unit)->content != NULL)
-    (*unit)->content = strdup ((*md_unit)->content);
+    (*unit)->content = (*md_unit)->content;
+
   (*unit)->uri = (*md_unit)->uri;
   (*unit)->lang = (*md_unit)->lang;
 

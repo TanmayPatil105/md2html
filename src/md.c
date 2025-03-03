@@ -287,7 +287,7 @@ parse_md (MDFile *file)
               if (find_md_unit_type (line) == UNIT_TYPE_CODE_BLOCK_BOUND)
                 break;
 
-              if (buf_size < count + read)
+              if (count + read >= buf_size)
                 {
                   buf_size <<= 1;
                   buf = realloc (buf, sizeof (char) * buf_size);
@@ -304,10 +304,9 @@ parse_md (MDFile *file)
         {
           char *content = NULL;
 
-          content = remove_trailing_new_line (find_md_content (line,
-                                                               unit->type));
+          content = find_md_content (line, unit->type);
           if (content != NULL)
-            unit->content = strdup (content);
+            unit->content = remove_trailing_new_line (strdup (content));
         }
 
       /* Append to md->elements */
@@ -341,8 +340,8 @@ md_free (MD *md)
   while (unit != NULL)
     {
       next = unit->next;
-      if (unit->content != NULL)
-        free (unit->content);
+      /* free (unit->content); */
+      /* HTML takes ownership of the content */
       if (unit->uri != NULL)
         free (unit->uri);
 
