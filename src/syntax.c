@@ -81,7 +81,7 @@ static struct keywords_set *c_keywords[4] = {
   [0] = & (struct keywords_set) {
     (struct keyword[]) {
       { "#include",   "#E91E63" },
-      { "#define ",   "#E91E63" },
+      { "#define",    "#E91E63" },
       { NULL, NULL }
     }
   },
@@ -163,7 +163,12 @@ handle_binary (char *str)
   while (*str != '\0')
     {
       if (!BINARY_TOKEN (*str))
-        break;
+        {
+          if (isspace (*str) || *str == ';')
+            break;
+          else
+            return 0;
+        }
 
       str++;
       size++;
@@ -180,7 +185,12 @@ handle_hex (char *str)
   while (*str != '\0')
     {
       if (!HEX_TOKEN (*str))
-        break;
+        {
+          if (isspace (*str) || *str == ';')
+            break;
+          else
+            return 0;
+        }
 
       str++;
       size++;
@@ -217,7 +227,12 @@ get_number_length (char *str)
   while (*str != '\0')
     {
       if (!NUMBER_TOKEN (*str))
-        break;
+        {
+          if (isspace (*str) || *str == ';')
+            break;
+          else
+            return 0;
+        }
 
       str++;
       size++;
@@ -292,7 +307,7 @@ highlight_keywords (char                 *codeblk,
       int i;
       int len = 0;
       struct keyword *match = NULL;
-      char buf[300] = { 0 }; /* FIXME */
+      char buf[30000] = { 0 }; /* FIXME */
       bool advance_ptr = true;
 
       if (STRING_CHAR_TOKEN (*ptr))
