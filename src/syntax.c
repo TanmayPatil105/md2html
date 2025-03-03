@@ -82,6 +82,9 @@ static struct keywords_set *c_keywords[4] = {
     (struct keyword[]) {
       { "#include",   "#E91E63" },
       { "#define",    "#E91E63" },
+      { "#if",        "#E91E63" },
+      { "#ifndef",    "#E91E63" },
+      { "#endif",     "#E91E63" },
       { NULL, NULL }
     }
   },
@@ -279,7 +282,7 @@ extract_text (char   *start,
 
   if (needle != NULL)
     {
-      size = needle - start + 1;
+      size = needle - start + strlen (pattern);
 
       xml_sanitize_strcpy (buf, start, size);
     }
