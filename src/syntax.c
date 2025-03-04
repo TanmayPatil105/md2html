@@ -376,7 +376,7 @@ highlight_keywords (char                 *codeblk,
             }
         }
 
-      for (i = 0; i < n_keyword_types; i++)
+      for (i = 0; i < n_keyword_types && !match; i++)
         {
           struct keywords_set *type_set;
           struct keyword *type;
