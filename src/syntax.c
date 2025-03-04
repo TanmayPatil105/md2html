@@ -148,6 +148,24 @@ __isalnum (char c)
 }
 
 static bool
+__isoperator (char c)
+{
+  bool ret = false;
+  char operators[] = "+-*/%&|^!=<>?:";
+
+  for (int i = 0; operators[i] != '\0'; i++)
+    {
+      if (c == operators[i])
+        {
+          ret = true;
+          break;
+        }
+    }
+
+  return true;
+}
+
+static bool
 isescape_sequence (char *ptr)
 {
   if (* (ptr) != '\\')
@@ -167,7 +185,8 @@ handle_binary (char *str)
     {
       if (!BINARY_TOKEN (*str))
         {
-          if (isspace (*str) || *str == ';')
+          if (isspace (*str) || *str == ';'
+              || __isoperator (*str))
             break;
           else
             return 0;
@@ -189,7 +208,8 @@ handle_hex (char *str)
     {
       if (!HEX_TOKEN (*str))
         {
-          if (isspace (*str) || *str == ';')
+          if (isspace (*str) || *str == ';'
+              || __isoperator (*str))
             break;
           else
             return 0;
@@ -231,7 +251,8 @@ get_number_length (char *str)
     {
       if (!NUMBER_TOKEN (*str))
         {
-          if (isspace (*str) || *str == ';')
+          if (isspace (*str) || *str == ';'
+              || __isoperator (*str))
             break;
           else
             return 0;
@@ -440,10 +461,21 @@ highlight_keywords (char                 *codeblk,
         }
       else /* Not a keyword */
         {
-          size_t len;
+          size_t len, str_size = 0;
           static int max_xml_char_size = 20; /* subject to change */
+          char *str = ptr;
 
-          if (count + max_xml_char_size >= size - 1)
+          if (isalpha (*str))
+            {
+              while (__isalnum (*str++))
+                str_size++;
+            }
+          else
+            {
+              str_size = 1;
+            }
+
+          if (count + str_size * max_xml_char_size >= size - 1)
             {
               size <<= 1;
 
@@ -451,8 +483,10 @@ highlight_keywords (char                 *codeblk,
             }
 
           len = xml_sanitize_strcpy (&highlighted[count],
-                                     ptr++, 1);
+                                     ptr, str_size);
+
           count += len;
+          ptr += str_size;
         }
     }
 
