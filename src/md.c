@@ -106,9 +106,6 @@ md_unit_init (MDUnit **unit)
   (*unit)->next = NULL;
 }
 
-
-static UnitType prev_md_unit = UNIT_TYPE_NONE;
-
 /* Notes:
  *
  * UNIT_TYPE_NONE: empty line
@@ -251,7 +248,6 @@ parse_md (MDFile *file)
   size_t len = 0;
   size_t read;
   MD *md = NULL;
-  MDUnit *unit = NULL;
   MDUnit *next = NULL;
 
   return_val_if_null (file);
@@ -282,7 +278,7 @@ parse_md (MDFile *file)
           buf = malloc (sizeof (char) * buf_size);
           buf[0] = '\n'; /* add a newline */
 
-          while ((read = getline (&line, &len, file)) != -1)
+          while ((read = getline (&line, &len, file)) != -1UL)
             {
               if (find_md_unit_type (line) == UNIT_TYPE_CODE_BLOCK_BOUND)
                 break;

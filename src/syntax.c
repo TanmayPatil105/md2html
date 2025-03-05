@@ -162,7 +162,7 @@ __isoperator (char c)
         }
     }
 
-  return true;
+  return ret;
 }
 
 static bool
@@ -241,7 +241,7 @@ get_number_length (char *str)
           ret = handle_hex (str + 2);
         }
 
-      if (ret != -1)
+      if (ret != -1UL)
         return ret + 2;
     }
 
@@ -288,7 +288,7 @@ extract_text (char   *start,
               char   *pattern)
 {
   size_t size = 0;
-  char *str_start, *needle;
+  char *needle;
 
   needle = start;
 
@@ -399,10 +399,8 @@ highlight_keywords (char                 *codeblk,
 
       for (i = 0; i < n_keyword_types && !match; i++)
         {
-          struct keywords_set *type_set;
           struct keyword *type;
 
-          type_set = set[i];
           type = set[i]->keywords;
 
           for (int j = 0; type[j].str != NULL; j++)
@@ -429,7 +427,7 @@ highlight_keywords (char                 *codeblk,
 
       if (match != NULL)
         {
-          char *cpy, *org;
+          char *cpy;
           const char *strs[5] = {
             "<font color=\"", NULL, "\">",
             NULL,
@@ -447,7 +445,6 @@ highlight_keywords (char                 *codeblk,
           strs[3] = match->str;
 
           cpy = &highlighted[count];
-          org = cpy;
 
           for (int i = 0; i < 5; i++)
             {

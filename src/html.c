@@ -61,8 +61,6 @@ static html_tags tags[] = {
   {HTML_TAG_NEWLINE, NULL, NULL},
 };
 
-static Lang curr_lang = LANG_NONE;
-
 /*
  * html_init
  * @html
@@ -502,7 +500,7 @@ pre_format (HTMLFile *file,
 static void
 post_format (HTMLFile *file,
              HTML     *html,
-             int       index)
+             uint      index)
 {
   HTMLUnit *unit = NULL;
 
