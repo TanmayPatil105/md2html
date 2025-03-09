@@ -161,8 +161,6 @@ init_template (HTMLFile *file,
                HTML     *html)
 {
   HTMLUnit *unit = NULL;
-  char template[1000];
-  int len = 0;
 
   if (html->title == NULL)
     {
@@ -172,7 +170,7 @@ init_template (HTMLFile *file,
         html->title = strdup (__DEFAULT_HTML_TITLE__);
     }
 
-  len = sprintf (template,
+  fprintf (file,
     "<!DOCTYPE html>\n"
     "<html lang=\"en\">\n"
     "<head>\n"
@@ -181,31 +179,23 @@ init_template (HTMLFile *file,
 
   if (html->stylesheet)
     {
-      len += sprintf (template + len,
-                     "\t<link rel=\"stylesheet\" href=\"%s\">\n",
-                     html->stylesheet);
+      fprintf (file,
+               "\t<link rel=\"stylesheet\" href=\"%s\">\n",
+               html->stylesheet);
     }
 
-  sprintf (template + len,
+  fprintf (file,
     "\t<title>%s</title>\n"
     "</head>\n"
     "<body>\n", html->title);
-
-  /* inject init template HTML */
-  fprintf (file, "%s", template);
 }
 
 static void
 final_template (HTMLFile *file)
 {
-  char template[20];
-
-  sprintf (template,
+  fprintf (file,
     "</body>\n"
     "</html>\n");
-
-  /* inject final template HTML */
-  fprintf (file, "%s", template);
 }
 
 /*
