@@ -151,7 +151,7 @@ static bool
 __isoperator (char c)
 {
   bool ret = false;
-  char operators[] = "+-*/%&|^!=<>?:";
+  char operators[] = "+-*/%&|^!=<>?:()";
 
   for (int i = 0; operators[i] != '\0'; i++)
     {
@@ -388,7 +388,7 @@ highlight_keywords (char                 *codeblk,
           if (size != 0)
             {
               string.str = buf;
-              string.color = "#C061CB";
+              string.color = "#9A4EA2";
 
               match = &string;
               ptr += size;
