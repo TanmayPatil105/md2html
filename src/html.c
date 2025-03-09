@@ -448,7 +448,7 @@ flush_content (HTMLFile *file,
     {
       if (unit->tag == HTML_TAG_CODE_BLOCK)
         {
-          if (unit->lang == LANG_NONE)
+          if (unit->lang == LANG_NONE || unit->lang == LANG_HTML)
             {
               FWRITE_STR (unit->content, file);
             }

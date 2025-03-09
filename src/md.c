@@ -224,8 +224,10 @@ find_code_block_lang (char *line)
 
   if (strncmp (str, "c", 1) == 0)
     lang = LANG_C;
-  if (strncmp (str, "diff", 4) == 0)
+  else if (strncmp (str, "diff", 4) == 0)
     lang = LANG_DIFF;
+  else if (strncmp (str, "html", 4) == 0)
+    lang = LANG_HTML;
 
   return lang;
 }
