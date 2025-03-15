@@ -23,6 +23,7 @@
 #include "params.h"
 #include "md.h"
 #include "html.h"
+#include "uuid.h"
 
 
 #define VERSION "0.1.0"
@@ -88,6 +89,8 @@ main (int   argc,
                argv[0], params->i_file);
       return 1;
     }
+
+  uuid_init ();
 
   md = parse_md (file);
 

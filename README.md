@@ -18,12 +18,15 @@ Supports:
 | `* text *`      | `<i> text </i>`|
 | ` ``` int main (){} ``` ` | `<pre> int main (){} </pre>` |
 
+- Footnotes support
+
 ### Syntax highlighting
 
 Languages supported:
 - C
 - Diff
 - HTML
+
 
 ## Formatting
 

@@ -61,6 +61,9 @@ static html_tags tags[] = {
   {HTML_TAG_NEWLINE, NULL, NULL},
 };
 
+/* local reference */
+static Footnotes *footnotes = NULL;
+
 /*
  * html_init
  * @html
@@ -239,6 +242,8 @@ html_from_md (MD     *md,
       html->html[i++] = html_unit;
     }
 
+  footnotes = md->notes;
+
   return html;
 }
 
@@ -292,6 +297,8 @@ tag_is_list (HTMLTag tag)
 {
   return tag == HTML_TAG_LI;
 }
+
+#define OFFSET 400
 
 static char *
 format_text (char *content)
@@ -374,6 +381,48 @@ format_text (char *content)
                 }
             }
         }
+      else if (*ptr == '[' && * (ptr + 1) == '^')
+        {
+          char *id_start = ptr + 2;
+          char *id_end;
+
+          id_end = strchr (id_start, ']');
+
+          if (id_end)
+            {
+              char *id = NULL;
+              int id_len;
+              Reference *ref;
+
+              id_len = id_end - id_start;
+              ptr += id_len + 3;
+
+
+              id = calloc (id_len + 1, sizeof (char));
+              strncpy (id, id_start, id_len);
+
+              ref = footnotes_get_ref (footnotes, id);
+              if (ref != NULL)
+                {
+                  uuid_t uuid;
+                  uuid_generate_random (uuid);
+
+                  id_len = sprintf (replaced + len, "<a href=\"#fn-%s\" id=\"fnref-%s\">"
+                                                    "<sup>%d</sup>"
+                                                    "</a>",
+                                                    ref->uuid, uuid, ref->index);
+
+                  footnotes_add_referrer (footnotes, ref->index, uuid);
+                }
+              else
+                {
+                  id_len = sprintf (replaced + len, "<a href=\"#\"><sup>?</sup></a>");
+                }
+
+              free (id);
+              len += id_len;
+            }
+        }
       else if (*ptr == '[')
         {
           char *anc_start = ptr + 1;
@@ -399,7 +448,7 @@ format_text (char *content)
         }
 
       replaced[len++] = *ptr++;
-      if (len >= size)
+      if (len + OFFSET >= size)
         {
           size <<= 1;
           replaced = realloc (replaced, size);
@@ -409,6 +458,46 @@ format_text (char *content)
   replaced[len] = '\0';
   /* give ownership */
   return replaced;
+}
+
+static void
+flush_footnotes (HTMLFile *file)
+{
+  int n_refs;
+
+  n_refs = footnotes_get_count (footnotes);
+
+  if (n_refs == 0)
+    return;
+
+  FWRITE_STR ("\n\t<hr>\n", file);
+
+  for (int i = 0; i < n_refs; i++)
+    {
+      Reference *ref;
+
+      ref = footnotes_get_ref_from_index (footnotes, i);
+
+      INSERT_TABSPACE (file);
+      fprintf (file, "<p id=\"fn-%s\">"
+                     "\t\t%d. %s",
+                     ref->uuid, ref->index, ref->text);
+
+      for (int j = 0; j < ref->n_referrers; j++)
+        {
+          if ( j != 0)
+            fprintf (file,
+                     "<a href=\"#fnref-%s\">↩︎<sup>%d</sup></a>",
+                     ref->referrers[j], j + 1);
+          else
+            fprintf (file,
+                     "<a href=\"#fnref-%s\">↩︎</a>",
+                     ref->referrers[j]);
+        }
+
+      fprintf (file, "</p>\n");
+
+    }
 }
 
 static void
@@ -546,6 +635,8 @@ flush_html (HTML *html)
 
       post_format (file, html, i);
     }
+
+  flush_footnotes (file);
 
   if (html->document)
     final_template (file);

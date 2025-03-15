@@ -5,6 +5,8 @@ set(SOURCES
 		html.c
 		syntax.c
 		xml.c
+		footnotes.c
+		uuid.c
 )
 
 set (CMAKE_C_COMPILER gcc)

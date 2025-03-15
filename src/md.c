@@ -18,10 +18,10 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+#include "md.h"
 
 #include <stdlib.h>
 #include <string.h>
-#include "md.h"
 
 
 /* inspired from glib */
@@ -79,6 +79,7 @@ md_init (MD **md)
 
   (*md)->n_lines = -1;
   (*md)->elements = NULL;
+  (*md)->notes = footnotes_new ();
 }
 
 /*
@@ -104,6 +105,56 @@ md_unit_init (MDUnit **unit)
   (*unit)->uri = NULL;
   (*unit)->lang = LANG_NONE;
   (*unit)->next = NULL;
+}
+
+static void
+extract_footnote (char  *line,
+                  char **identifier,
+                  char **note)
+{
+  char *start, *end;
+  int len = 0;
+
+  start = line + 2;
+  end = strstr (start, "]:");
+
+  if (end == NULL)
+    return;
+
+  len = end - start;
+
+  if (len != 0)
+    {
+      *identifier = calloc (len + 1, sizeof (char));
+      strncpy (*identifier, start, len);
+    }
+
+  start = end + 2;
+  end = strchr (start, '\n');
+
+  len = end - start;
+  if (len != 0)
+    {
+      *note = calloc (len + 1, sizeof (char));
+      strncpy (*note, start, len);
+    }
+}
+
+static void
+add_footnote (MD   *md,
+              char *line)
+{
+  char *identifier = NULL;
+  char *note = NULL;
+
+  extract_footnote (line, &identifier, &note);
+
+  footnotes_add (md->notes, identifier, note);
+
+  if (identifier)
+    free (identifier);
+  if (note)
+    free (note);
 }
 
 /* Notes:
@@ -162,6 +213,20 @@ find_md_unit_type (char *line)
                line[1] == ' ')
         {
           return UNIT_TYPE_H1;
+        }
+    }
+
+  if (line[0] == '[')
+    {
+      char *ptr = line + 1;
+
+      if (*ptr == '^')
+        {
+          while (*ptr)
+            {
+              if (*ptr++ == ']')
+                return UNIT_TYPE_FOOTNOTE;
+            }
         }
     }
 
@@ -298,6 +363,11 @@ parse_md (MDFile *file)
           buf[count] = '\0';
           unit->content = buf;
         }
+      else if (unit->type == UNIT_TYPE_FOOTNOTE)
+        {
+          add_footnote (md, line);
+          continue;
+        }
       else
         {
           char *content = NULL;
@@ -347,5 +417,6 @@ md_free (MD *md)
       unit = next;
     }
 
+  footnotes_free (md->notes);
   free (md);
 }

@@ -21,8 +21,10 @@
 
 #pragma once
 
-#include <stdio.h>
 #include "lang.h"
+#include "footnotes.h"
+
+#include <stdio.h>
 
 typedef unsigned int uint;
 
@@ -40,7 +42,8 @@ typedef enum {
   UNIT_TYPE_CODE_BLOCK,       /* 5 */
   UNIT_TYPE_CODE_BLOCK_BOUND, /* 6 */
   UNIT_TYPE_TEXT,             /* 7 */
-  UNIT_TYPE_NONE,             /* 8 */
+  UNIT_TYPE_FOOTNOTE,         /* 8 */
+  UNIT_TYPE_NONE,             /* 9 */
 } UnitType;
 
 typedef struct MDUnit{
@@ -59,6 +62,9 @@ typedef struct {
 
   /* Linked List */
   MDUnit *elements;
+
+  /* footnotes */
+  Footnotes *notes;
 } MD;
 
 
