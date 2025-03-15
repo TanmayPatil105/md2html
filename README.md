@@ -22,7 +22,8 @@ Supports:
 
 Languages supported:
 - C
-
+- Diff
+- HTML
 
 ## Formatting
 
