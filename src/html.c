@@ -485,7 +485,7 @@ flush_footnotes (HTMLFile *file)
 
       for (int j = 0; j < ref->n_referrers; j++)
         {
-          if ( j != 0)
+          if (j != 0)
             fprintf (file,
                      "<a href=\"#fnref-%s\">↩︎<sup>%d</sup></a>",
                      ref->referrers[j], j + 1);

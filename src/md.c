@@ -222,11 +222,8 @@ find_md_unit_type (char *line)
 
       if (*ptr == '^')
         {
-          while (*ptr)
-            {
-              if (*ptr++ == ']')
-                return UNIT_TYPE_FOOTNOTE;
-            }
+          if (strstr (ptr, "]:") != NULL)
+            return UNIT_TYPE_FOOTNOTE;
         }
     }
 
