@@ -10,8 +10,8 @@
 #define HEX    0x83f9202abc
 
 struct string_with_3_in_it {
-  int32_t x;
-  int32_t y;
+  int32_t x; // x in struct
+  int32_t y; // y in struct
 };
 
 int main() {

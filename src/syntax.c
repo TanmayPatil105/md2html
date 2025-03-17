@@ -58,20 +58,27 @@ const int font_tag_size = 30; /* pre-calculated */
  **/
 
 #define STRING_TOKEN(c) (c == '\"')
+
 #define CHAR_TOKEN(c) (c == '\'')
 
 #define STRING_CHAR_TOKEN(c) \
         (STRING_TOKEN (c) || \
          CHAR_TOKEN (c))
 
-#define COMMENT_TOKEN(ptr) \
+#define SINGLE_LINE_COMMENT_TOKEN(ptr) \
+        (ptr[0] == '/' &&  \
+         ptr[1] && ptr[1] == '/')
+
+#define MULTI_LINE_COMMENT_TOKEN(ptr) \
         (ptr[0] == '/' &&  \
          ptr[1] && ptr[1] == '*')
 
 #define NUMBER_TOKEN(c) \
         (c >= '0' && c <= '9')
+
 #define BINARY_TOKEN(c) \
         (c == '0' || c == '1')
+
 #define HEX_TOKEN(c) \
         (NUMBER_TOKEN (c)       || \
          (c >= 'a' && c <= 'f') || \
@@ -361,7 +368,7 @@ highlight_keywords (char                 *codeblk,
               advance_ptr = false;
             }
         }
-      else if (COMMENT_TOKEN (ptr))
+      else if (MULTI_LINE_COMMENT_TOKEN (ptr))
         {
           size_t size;
 
@@ -377,6 +384,25 @@ highlight_keywords (char                 *codeblk,
               len = size;
               advance_ptr = false;
             }
+        }
+      else if (SINGLE_LINE_COMMENT_TOKEN (ptr))
+        {
+          size_t size;
+          char *newline;
+
+          newline = strchr (ptr + 2, '\n');
+          size = newline - ptr;
+
+          strncpy (buf, ptr, size);
+          buf[size] = '\0';
+
+          string.str = buf;
+          string.color = "#006400";
+
+          match = &string;
+          ptr += size;
+          len = size;
+          advance_ptr = false;
         }
       else if (NUMBER_TOKEN (*ptr)
                && !isalpha (* (ptr - 1)))
