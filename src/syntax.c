@@ -158,7 +158,7 @@ static bool
 __isoperator (char c)
 {
   bool ret = false;
-  char operators[] = "+-*/%&|^!=<>?:()";
+  char operators[] = "+-*/%&|^!=<>?:()[]";
 
   for (int i = 0; operators[i] != '\0'; i++)
     {
