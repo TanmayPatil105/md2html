@@ -446,6 +446,21 @@ format_text (char *content)
                 }
             }
         }
+      else if (*ptr == '`')
+        {
+          char *code_start = ptr + 1;
+          char *code_end = strchr (code_start, '`');
+
+          if (code_end)
+            {
+              int tag_len = 13;
+
+              sprintf (replaced + len, "<code>%.*s</code>",
+                                       (int) (code_end - code_start), code_start);
+              len += (code_end - code_start) + tag_len;
+              ptr = code_end + 1;
+            }
+        }
 
       replaced[len++] = *ptr++;
       if (len + OFFSET >= size)
