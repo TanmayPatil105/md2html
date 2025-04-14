@@ -306,7 +306,7 @@ format_text (char *content)
   char *replaced = NULL;
   char *ptr = NULL;
   size_t size = 256;
-  size_t len = 0;
+  size_t len = 0, write;
 
   replaced = malloc (sizeof (char) * size);
   ptr = content;
@@ -320,9 +320,9 @@ format_text (char *content)
           char *end = strstr (start, "***");
           if (end)
             {
-              int tag_len = 14;
-              sprintf (replaced + len, "<b><i>%.*s</i></b>", (int)(end - start), start);
-              len += end - start + tag_len;
+              write = sprintf (replaced + len, "<b><i>%.*s</i></b>",
+                                               (int)(end - start), start);
+              len += write;
               ptr = end + offset;
 
               continue;
@@ -335,9 +335,9 @@ format_text (char *content)
           char *end = strstr (start, "**");
           if (end)
             {
-              int tag_len = 7;
-              sprintf (replaced + len, "<b>%.*s</b>", (int)(end - start), start);
-              len += end - start + tag_len;
+              write = sprintf (replaced + len, "<b>%.*s</b>",
+                                               (int)(end - start), start);
+              len += write;
               ptr = end + offset;
 
               continue;
@@ -350,9 +350,9 @@ format_text (char *content)
           char *end = strchr (start, '*');
           if (end)
             {
-              int tag_len = 7;
-              sprintf (replaced + len, "<i>%.*s</i>", (int)(end - start), start);
-              len += end - start + tag_len;
+              write = sprintf (replaced + len, "<i>%.*s</i>",
+                                               (int)(end - start), start);
+              len += write;
               ptr = end + offset;
 
               continue;
@@ -370,11 +370,10 @@ format_text (char *content)
 
               if (src_end)
                 {
-                  int tag_len = 19;
-                  sprintf (replaced + len, "<img src=\"%.*s\" alt=\"%.*s\">",
-                                          (int) (src_end - src_start), src_start,
-                                          (int) (alt_end - alt_start), alt_start);
-                  len += (src_end - alt_start - 2) + tag_len;
+                  write = sprintf (replaced + len, "<img src=\"%.*s\" alt=\"%.*s\">",
+                                                   (int) (src_end - src_start), src_start,
+                                                   (int) (alt_end - alt_start), alt_start);
+                  len += write;
                   ptr = src_end + 1;
 
                   continue;
@@ -407,7 +406,7 @@ format_text (char *content)
                   uuid_t uuid;
                   uuid_generate_random (uuid);
 
-                  id_len = sprintf (replaced + len, "<a href=\"#fn-%s\" id=\"fnref-%s\">"
+                  write = sprintf (replaced + len, "<a href=\"#fn-%s\" id=\"fnref-%s\">"
                                                     "<sup>%d</sup>"
                                                     "</a>",
                                                     ref->uuid, uuid, ref->index);
@@ -416,11 +415,11 @@ format_text (char *content)
                 }
               else
                 {
-                  id_len = sprintf (replaced + len, "<a href=\"#\"><sup>?</sup></a>");
+                  write = sprintf (replaced + len, "<a href=\"#\"><sup>?</sup></a>");
                 }
 
               free (id);
-              len += id_len;
+              len += write;
             }
         }
       else if (*ptr == '[')
@@ -435,11 +434,10 @@ format_text (char *content)
 
               if (href_end)
                 {
-                  int tag_len = 15;
-                  sprintf (replaced + len, "<a href=\"%.*s\">%.*s</a>",
+                  write = sprintf (replaced + len, "<a href=\"%.*s\">%.*s</a>",
                                           (int) (href_end - href_start), href_start,
                                           (int) (anc_end - anc_start), anc_start);
-                  len += (href_end - anc_start - 2) + tag_len;
+                  len += write;
                   ptr = href_end + 1;
 
                   continue;
@@ -453,11 +451,9 @@ format_text (char *content)
 
           if (code_end)
             {
-              int tag_len = 13;
-
-              sprintf (replaced + len, "<code>%.*s</code>",
+              write = sprintf (replaced + len, "<code>%.*s</code>",
                                        (int) (code_end - code_start), code_start);
-              len += (code_end - code_start) + tag_len;
+              len += write;
               ptr = code_end + 1;
             }
         }
