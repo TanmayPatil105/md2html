@@ -300,6 +300,24 @@ tag_is_list (HTMLTag tag)
 
 #define OFFSET 400
 
+struct fmt {
+  const char *start_pattern;
+  const char *end_pattern; /* end_pattern is needed here because
+                            * the ending underscores need a whitespace
+                            * at the end to be valid */
+  const char *start_tag;
+  const char *end_tag;
+} regx[] = {
+  { "***", "***",  "<b><i>", "</i></b>" },
+  { "**",  "**",   "<b>",    "</b>"     },
+  { "*",   "*",    "<i>",    "</i>"     },
+  { "___", "___ ", "<b><i>", "</i></b>" },
+  { "__",  "__ ",  "<b>",    "</b>"     },
+  { "_",   "_ ",   "<i>",    "</i>"     },
+  { "`",   "`",    "<code>", "</code>"  },
+};
+
+
 static char *
 format_text (char *content)
 {
@@ -307,56 +325,42 @@ format_text (char *content)
   char *ptr = NULL;
   size_t size = 256;
   size_t len = 0, write;
+  size_t n_regex = sizeof (regx) / sizeof (regx[0]);
 
   replaced = malloc (sizeof (char) * size);
   ptr = content;
 
   while (*ptr)
     {
-      if (*ptr == '*' && *(ptr + 1) == '*' && *(ptr + 2) == '*')
-        {
-          int offset = 3;
-          char *start = ptr + offset;
-          char *end = strstr (start, "***");
-          if (end)
-            {
-              write = sprintf (replaced + len, "<b><i>%.*s</i></b>",
-                                               (int)(end - start), start);
-              len += write;
-              ptr = end + offset;
+      bool in_regx = false;
 
-              continue;
+      for (size_t i = 0; i < n_regex; i++)
+        {
+          int offset = strlen (regx[i].start_pattern);
+
+          if (strncmp (ptr, regx[i].start_pattern, offset) == 0) {
+              char *start, *end;
+
+              start = ptr + offset;
+              end = strstr (start, regx[i].end_pattern);
+
+              if (end != NULL)
+                {
+                  write = sprintf (replaced + len, "%s%.*s%s",
+                                                   regx[i].start_tag,
+                                                   (int)(end - start), start,
+                                                   regx[i].end_tag);
+
+                  len += write;
+                  ptr = end + offset;
+                  in_regx = true;
+                }
             }
         }
-      else if (*ptr == '*' && *(ptr + 1) == '*')
-        {
-          int offset = 2;
-          char *start = ptr + offset;
-          char *end = strstr (start, "**");
-          if (end)
-            {
-              write = sprintf (replaced + len, "<b>%.*s</b>",
-                                               (int)(end - start), start);
-              len += write;
-              ptr = end + offset;
 
-              continue;
-            }
-        }
-      else if (*ptr == '*')
+      if (in_regx)
         {
-          int offset = 1;
-          char *start = ptr + offset;
-          char *end = strchr (start, '*');
-          if (end)
-            {
-              write = sprintf (replaced + len, "<i>%.*s</i>",
-                                               (int)(end - start), start);
-              len += write;
-              ptr = end + offset;
-
-              continue;
-            }
+          continue;
         }
       else if (*ptr == '!' && *(ptr + 1) == '[')
         {
@@ -442,19 +446,6 @@ format_text (char *content)
 
                   continue;
                 }
-            }
-        }
-      else if (*ptr == '`')
-        {
-          char *code_start = ptr + 1;
-          char *code_end = strchr (code_start, '`');
-
-          if (code_end)
-            {
-              write = sprintf (replaced + len, "<code>%.*s</code>",
-                                       (int) (code_end - code_start), code_start);
-              len += write;
-              ptr = code_end + 1;
             }
         }
 
