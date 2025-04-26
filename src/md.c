@@ -363,6 +363,7 @@ parse_md (MDFile *file)
       else if (unit->type == UNIT_TYPE_FOOTNOTE)
         {
           add_footnote (md, line);
+          free (unit);
           continue;
         }
       else

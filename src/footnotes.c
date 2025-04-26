@@ -136,5 +136,5 @@ footnotes_add_referrer (Footnotes *notes,
   ref->referrers = realloc (ref->referrers,
                             sizeof (uuid_t) * ++ref->n_referrers);
 
-  strncpy (ref->referrers[ref->n_referrers - 1], uuid, UUID_NUM_CHARACTERS);
+  strncpy (ref->referrers[ref->n_referrers - 1], uuid, sizeof (uuid_t));
 }
